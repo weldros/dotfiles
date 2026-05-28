@@ -503,13 +503,13 @@ PanelWindow {
 
                         Rectangle {
                             id: wsHighlight
-                            height: 28
-                            radius: 4
+                            height: 26
+                            radius: 3
 
                             property real targetX: 0
                             property real targetWidth: 26
-                            property real highlightOpacity: 0.8
-                            property real highlightScale: 1.0
+                            property real highlightOpacity: 0.7
+                            property real highlightScale: 1
 
                             x: targetX
                             width: targetWidth
@@ -590,7 +590,7 @@ PanelWindow {
                                         anchors.fill: parent
                                         hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
-                                        onClicked: Hyprland.dispatch("workspace " + modelData.id)
+                                        onClicked: Hyprland.dispatch(`hl.dsp.focus({ workspace = "${modelData.id}" })`)
                                     }
                                 }
                             }
