@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 <path-to-image>"
+  exit 1
+fi
+
+IMAGE="$1"
+
+notify-send "Changing Theme"
+
+awww img "$IMAGE" -t wipe --transition-fps 60
+
+wal -i "$IMAGE"
+
+wal -r
+
+pkill waybar
+waybar >/dev/null 2>&1 &
+
+#pkill quickshell
+#quickshell >/dev/null 2>&1 &
+
+pkill swaync
+swaync >/dev/null 2>&1 &
+
+python /home/piyush/.local/bin/conkycolorspython.py
+python /home/piyush/.local/bin/conkycolorspython2.py
+
+notify-send "Theme Changed"
