@@ -15,7 +15,7 @@ PanelWindow {
     implicitWidth: 420
     color: "transparent"
     focusable: true
-    WlrLayershell.keyboardFocus: root.launcherVisible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: root.launcherVisible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     Behavior on margins.left { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
 
     Rectangle {
@@ -734,8 +734,10 @@ PanelWindow {
                 wallGridView.contentY = 0
                 loadUsageProc.running = true
                 currentWallProc.running = true
-                focusDelayTimer.start()
-            } else {
+                focusTimer.start()
+                //focusDelayTimer.start()
+            }
+            else {
                 searchInput.text = ""
                 wallSearchInput.text = ""
                 searchInput.focus = false
@@ -748,28 +750,42 @@ PanelWindow {
         }
     }
 
+//    Timer {
+//        id: focusDelayTimer
+//        interval: 50
+//        repeat: false
+//        onTriggered: {
+//            launcherPanel.WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive
+//            exclusiveReleaseTimer.start()
+//        }
+//    }
+
     Timer {
-        id: focusDelayTimer
+        id: focusTimer
         interval: 50
         repeat: false
         onTriggered: {
-            launcherPanel.WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive
-            exclusiveReleaseTimer.start()
-        }
-    }
-
-    Timer {
-        id: exclusiveReleaseTimer
-        interval: 100
-        repeat: false
-        onTriggered: {
-            if (root.activeTab === 0)
+            if (root.activeTab === 0) {                     //check for which tab is active, appListView/wallpapers
                 searchInput.forceActiveFocus()
-            else {
+            } else {
                 if (!root.wallsLoaded) root.loadWallpapers()
                 wallSearchInput.forceActiveFocus()
             }
-            launcherPanel.WlrLayershell.keyboardFocus = WlrKeyboardFocus.OnDemand
         }
     }
+
+//    Timer {
+//        id: exclusiveReleaseTimer
+//        interval: 100
+//        repeat: false
+//        onTriggered: {
+//            if (root.activeTab === 0)
+//                searchInput.forceActiveFocus()
+//            else {
+//                if (!root.wallsLoaded) root.loadWallpapers()
+//                wallSearchInput.forceActiveFocus()
+//            }
+//            launcherPanel.WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive
+//       }
+//    }
 }
