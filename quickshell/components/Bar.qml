@@ -839,7 +839,12 @@ PanelWindow {
                                     }
                                     antialiasing: true
 
-                                    Behavior on width { NumberAnimation { duration: bar.batteryCharging ? 50 : 600; easing.type: Easing.OutCubic } }
+                                    Behavior on width {
+                                      enabled: !bar.batteryCharging
+                                      NumberAnimation {
+                                        duration: bar.batteryCharging ? 50 : 600; easing.type: Easing.OutCubic 
+                                      }
+                                    }
                                     Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
                                 }
                             }
