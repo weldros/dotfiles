@@ -6,7 +6,21 @@ hl.monitor({
 	scale = "1",
 })
 
--- Local variable decoration
+--hl.monitor({
+----	output = "eDP-1",
+----	mode = "1920x1080@60",
+----	position = "0x0",
+----	scale = "1",
+----})
+--
+--hl.monitor({
+----	output = "HDMI-A-1",
+----	mode = "1360x768@60",
+----	position = "1920x0",
+----	scale = "1",
+--})
+
+-- Local variable declaration
 local terminal = "kitty"
 local fileManager = "dolphin"
 local menu = "rofi -show drun"
@@ -15,6 +29,9 @@ local ss = "hyprshot -m output -m eDP-1 -o ~/Pictures/Screenshots"
 local ssRegion = "hyprshot -m region -o ~/Pictures/Screenshots"
 local walset = "bash -lc ~/.config/hypr/scripts/walset_nsxiv"
 local codeEditor = "code"
+local quickshellWall = "quickshell ipc call wallpaper toggle"
+local quickshellApp = "quickshell ipc call launcher toggle"
+local screenLock = "hyprlock"
 
 -- Autostart
 hl.on("hyprland.start", function()
@@ -200,8 +217,11 @@ hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(ssRegion))
 hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd(walset))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
-
+hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd(quickshellWall))
 hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.window.swap({ next = true }))
+hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd(quickshellApp))
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(screenLock))
+hl.bind(mainMod .. " + ALT + RETURN", hl.dsp.exec_cmd("kitty"))
 
 hl.bind("ALT + SHIFT + A", hl.dsp.window.swap({ direction = "l" }))
 hl.bind("ALT + SHIFT + S", hl.dsp.window.swap({ direction = "d" }))

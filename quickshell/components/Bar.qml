@@ -54,6 +54,8 @@ PanelWindow {
     property var cavaValues: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
     property real chargingPulse: 1.0
     property real chargingFillAnim: 0.0
+    property bool notifiedWarning: false
+    property bool notifiedCritical: false
 
     //backlight
     property int backlightPercent: 100
@@ -251,7 +253,7 @@ PanelWindow {
     }
 
     Timer {
-        interval: 300
+        interval: 200
         running: true
         repeat: true
         triggeredOnStart: true
@@ -278,8 +280,8 @@ PanelWindow {
 
     Timer {
         id: volumeDebounce
-        interval: 300
-        repeat: false
+        //interval: 5000
+        repeat: true
         onTriggered: {
             volumeSetProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", bar.pendingVolume + "%"]
             volumeSetProc.running = true
@@ -353,7 +355,7 @@ PanelWindow {
                 else bar.batteryClass = ""
             }
         }
-    }
+      }
 
     Process {
         id: volumeToggleProc
@@ -503,7 +505,7 @@ PanelWindow {
 
                         Rectangle {
                             id: wsHighlight
-                            height: 26
+                            height: 28
                             radius: 3
 
                             property real targetX: 0
@@ -845,6 +847,7 @@ PanelWindow {
                                         duration: bar.batteryCharging ? 50 : 600; easing.type: Easing.OutCubic 
                                       }
                                     }
+
                                     Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
                                 }
                             }
@@ -1054,7 +1057,7 @@ PanelWindow {
                 }
 
                 Timer {
-                    interval: 1000
+                    interval: 30 * 1000
                     running: true
                     repeat: true
                     triggeredOnStart: true
@@ -1076,6 +1079,8 @@ PanelWindow {
                         font.pixelSize: 11
                         font.bold: true
                         font.family: "JetBrainsMono Nerd Font"
+
+                         text: Qt.formatDateTime(new Date(), "dddd, MMMM d, yyyy")
                     }
                 }
 
@@ -1084,14 +1089,13 @@ PanelWindow {
                     anchors.fill: parent
                     hoverEnabled: true
                 }
-
-                Timer {
-                    interval: 1000
-                    running: true
-                    repeat: true
-                    triggeredOnStart: true
-                    onTriggered: dateLabel.text = Qt.formatDateTime(new Date(), "dddd, MMMM d, yyyy")
-                }
+//                Timer {
+//                    interval: 1000
+//                    running: true
+//                    repeat: true
+//                    triggeredOnStart: true
+//                    onTriggered: dateLabel.text = Qt.formatDateTime(new Date(), "dddd, MMMM d, yyyy")
+//                }
               }
 
             Notch {
