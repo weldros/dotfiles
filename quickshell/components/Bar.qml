@@ -820,7 +820,7 @@ PanelWindow {
                                 Rectangle {
                                     id: batteryFill
                                     anchors.left: parent.left
-                                    anchors.leftMargin: bar.batteryPercent >= 100 ? 0 : 2
+                                    anchors.leftMargin: bar.batteryPercent >= 100 ? 0 : 1
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: {
                                         if (bar.batteryPercent >= 100) return parent.width
@@ -831,7 +831,7 @@ PanelWindow {
                                         }
                                         return base
                                     }
-                                    height: bar.batteryPercent >= 100 ? parent.height : parent.height - 4
+                                    height: bar.batteryPercent >= 100 ? parent.height : parent.height - 1
                                     radius: bar.batteryPercent >= 100 ? 3 : 1.5
                                     color: {
                                         if (bar.batteryClass === "charging") return root.walColor2
