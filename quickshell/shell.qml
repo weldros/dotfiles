@@ -92,7 +92,7 @@ ShellRoot {
     property color walColor8: "#6c7086"
     property color walColor13: "#f5c2e7"
 
-    property int savedGifIndex: 0
+//    property int savedGifIndex: 0
 
     onWifiEnabledChanged: {
         if (!wifiEnabled) {
@@ -194,20 +194,20 @@ ShellRoot {
             loadUsageProc.running = true
             currentWallProc.running = true
             thumbDirProc.running = true
-            loadGifIndexProc.running = true
+//            loadGifIndexProc.running = true
         }
     }
 
-    Process {
-        id: loadGifIndexProc
-        command: ["bash", "-c", "cat '" + root.statePath + "/gif-index' 2>/dev/null || echo '0'"]
-        stdout: SplitParser {
-            onRead: data => {
-                var idx = parseInt(data.trim())
-                root.savedGifIndex = isNaN(idx) ? 0 : idx
-            }
-        }
-    }
+//    Process {
+//        id: loadGifIndexProc
+//        command: ["bash", "-c", "cat '" + root.statePath + "/gif-index' 2>/dev/null || echo '0'"]
+//        stdout: SplitParser {
+//            onRead: data => {
+//                var idx = parseInt(data.trim())
+//                root.savedGifIndex = isNaN(idx) ? 0 : idx
+//            }
+//        }
+//    }
 
     Process {
         id: saveStateProc
@@ -640,9 +640,9 @@ ShellRoot {
 
     Bar {}
     Dashboard {}
-    MusicPanel {}
+//    MusicPanel {}
     WifiPanel {}
-    BluetoothPanel {}
+//    BluetoothPanel {}
     LauncherPanel {}
 
     IpcHandler {
