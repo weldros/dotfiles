@@ -177,12 +177,19 @@ PanelWindow {
                                 font: parent.font
                             }
                             Keys.onReturnPressed: {
-                                if (wifiPassInput.text.length > 0) {
+                                if (wifiPassInput.text.length >= 8) {
                                     root.wifiConnecting = true
                                     wifiConnectProc.ssid = root.wifiPasswordSSID
                                     wifiConnectProc.password = wifiPassInput.text
                                     wifiConnectProc.running = true
                                     wifiPassInput.text = ""
+                                    root.wifiPasswordSSID = ""
+                                }
+                                if (!root.connectionCompletion) {
+                                  console.log("failed")
+                                }
+                                else {
+                                  console.log("suckcess")
                                 }
                             }
                             Keys.onEscapePressed: {

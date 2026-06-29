@@ -522,15 +522,29 @@ ShellRoot {
         id: wifiConnectProc
         property string ssid: ""
         property string password: ""
+        property string _outputBuffer: ""
         command: {
             if (password !== "")
-                return ["bash", "-c", "iwctl station wlan0 connect '" + ssid + "' --passphrase '" + password + "'"]
+                return ["bash", "-c", "iwctl station wlan0 connect '" + ssid + "' --passphrase '" + password + "' 2>&1"]
             else
-                return ["bash", "-c", "iwctl station wlan0 connect '" + ssid + "'"]
+                return ["bash", "-c", "iwctl station wlan0 connect '" + ssid + "' 2>&1"]
+              }
+
+        stdout: SplitParser {
+          splitMarker: ""
+          onRead: data => {
+            wifiConnectProc._outputBuffer += data
+          }
         }
         onExited: {
             root.wifiConnecting = false
             root.wifiPasswordSSID = ""
+            if (wifiConnectProc._outputBuffer.includes("Operation failed") || exitCode !== 0) {
+              connectionCompletion = false
+            }
+            else {
+              connectionCompletion = true
+            }
             if (!wifiCurrentProc.running) wifiCurrentProc.running = true
         }
     }
@@ -542,9 +556,9 @@ ShellRoot {
             root.wifiCurrentSSID = ""
             root.wifiSignal = 0
         }
-    }
+      }
 
-    Process {
+     Process {
         id: btStatusProc
         command: ["bash", "-c", "echo -e 'show\\nquit' | bluetoothctl 2>/dev/null | grep -q 'Powered: yes' && echo 'true' || echo 'false'"]
         stdout: SplitParser {
