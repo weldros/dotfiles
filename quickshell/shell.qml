@@ -522,6 +522,7 @@ ShellRoot {
         id: wifiConnectProc
         property string ssid: ""
         property string password: ""
+        property bool connectionCompletion: false
         property string _outputBuffer: ""
         command: {
             if (password !== "")
