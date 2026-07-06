@@ -157,7 +157,9 @@ PanelWindow {
                 var parts = data.trim().split(";")
                 var vals = []
                 for (var i = 0; i < 12 && i < parts.length; i++) {
-                    vals.push(parseInt(parts[i]) / 255)
+ //                 vals.push(parseInt(parts[i]) / 255)
+                  var parsed = parseInt(parts[i])
+                  vals.push(isNaN(parsed) ? 0.1 : (parsed / 255))
                 }
                 while (vals.length < 12) vals.push(0.1)
                 bar.cavaValues = vals
@@ -463,7 +465,17 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "󰣇"
-                        color: root.walColor2
+                        color: root.walColor5
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0
+                            verticalOffset: 1
+                            radius: 4
+                            samples: 9
+                            spread: 0.2
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                            transparentBorder: true
+                            }
                         font.pixelSize: 16
                         font.family: "JetBrainsMono Nerd Font"
                     }
@@ -505,7 +517,7 @@ PanelWindow {
 
                         Rectangle {
                             id: wsHighlight
-                            height: 28
+                            height: 26
                             radius: 3
 
                             property real targetX: 0
@@ -625,6 +637,16 @@ PanelWindow {
                        anchors.centerIn: parent
                        text: Hyprland.activeToplevel ? Hyprland.activeToplevel.title : "Desktop"
                        color: root.walColor5
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0
+                            verticalOffset: 1
+                            radius: 4
+                            samples: 9
+                            spread: 0.2
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                            transparentBorder: true
+                        }
                        font.pixelSize: 11
                        font.bold: true
                        font.family: "JetBrainsMono Nerd Font"
@@ -707,7 +729,7 @@ PanelWindow {
                                 radius: 4
                                 samples: 9
                                 spread: 0.2
-                                color: Qt.rgba(0, 0, 0, 0.8)
+                                color: Qt.rgba(0, 0, 0, 0.4)
                                 transparentBorder: true
                             }
 
@@ -806,6 +828,16 @@ PanelWindow {
                                 height: 10
                                 radius: 3
                                 color: "transparent"
+                                layer.enabled: true
+                                layer.effect: DropShadow {
+                                  horizontalOffset: 0
+                                  verticalOffset: 1
+                                  radius: 4
+                                  samples: 9
+                                  spread: 0.2
+                                  color: Qt.rgba(0, 0, 0, 0.2)
+                                  transparentBorder: true
+                                  }
                                 border.width: bar.batteryPercent >= 100 ? 0 : 1.5
                                 border.color: {
                                     if (bar.batteryClass === "charging") return root.walColor2
@@ -814,7 +846,6 @@ PanelWindow {
                                     return root.walColor13
                                 }
                                 antialiasing: true
-
                                 Behavior on border.color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                                 Rectangle {
@@ -838,7 +869,7 @@ PanelWindow {
                                         if (bar.batteryClass === "critical") return root.walColor1
                                         if (bar.batteryClass === "warning") return root.walColor4
                                         return root.walColor13
-                                    }
+                                      }
                                     antialiasing: true
 
                                     Behavior on width {
@@ -893,7 +924,16 @@ PanelWindow {
                             font.pixelSize: 11
                             font.bold: true
                             font.family: "JetBrainsMono Nerd Font"
-
+                            layer.enabled: true
+                            layer.effect: DropShadow {
+                              horizontalOffset: 0
+                              verticalOffset: 1
+                              radius: 4
+                              samples: 9
+                              spread: 0.2
+                              color: Qt.rgba(0, 0, 0, 0.4)
+                              transparentBorder: true
+                             }
                             Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
                         }
                     }
@@ -922,7 +962,16 @@ PanelWindow {
                         font.pixelSize: 11
                         font.bold: true
                         font.family: "JetBrainsMono Nerd Font"
-
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0
+                            verticalOffset: 1
+                            radius: 4
+                            samples: 9
+                            spread: 0.2
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                            transparentBorder: true
+                            }
                         Behavior on color { ColorAnimation { duration: 200; easing.type: Easing.OutCubic } }
                     }
                 }
@@ -953,6 +1002,16 @@ PanelWindow {
                         anchors.centerIn: parent
                         text: bar.backlightStr
                         color: root.walColor5
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0
+                            verticalOffset: 1
+                            radius: 4
+                            samples: 9
+                            spread: 0.2
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                            transparentBorder: true
+                        }
                         font.pixelSize: 11
                         font.bold: true
                         font.family: "JetBrainsMono Nerd Font"
@@ -1044,6 +1103,16 @@ PanelWindow {
                         id: clockLabel
                         anchors.centerIn: parent
                         color: root.walColor5
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0
+                            verticalOffset: 1
+                            radius: 4
+                            samples: 9
+                            spread: 0.2
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                            transparentBorder: true
+                        }
                         font.pixelSize: 11
                         font.bold: true
                         font.family: "JetBrainsMono Nerd Font"
@@ -1076,11 +1145,20 @@ PanelWindow {
                         id: dateLabel
                         anchors.centerIn: parent
                         color: root.walColor5
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0
+                            verticalOffset: 1
+                            radius: 4
+                            samples: 9
+                            spread: 0.2
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                            transparentBorder: true
+                        }
                         font.pixelSize: 11
                         font.bold: true
                         font.family: "JetBrainsMono Nerd Font"
-
-                         text: Qt.formatDateTime(new Date(), "dddd, MMMM d, yyyy")
+                        text: Qt.formatDateTime(new Date(), "dddd, MMMM d, yyyy")
                     }
                 }
 
@@ -1089,13 +1167,6 @@ PanelWindow {
                     anchors.fill: parent
                     hoverEnabled: true
                 }
-//                Timer {
-//                    interval: 1000
-//                    running: true
-//                    repeat: true
-//                    triggeredOnStart: true
-//                    onTriggered: dateLabel.text = Qt.formatDateTime(new Date(), "dddd, MMMM d, yyyy")
-//                }
               }
 
             Notch {
@@ -1112,6 +1183,16 @@ PanelWindow {
                         color: root.walColor2
                         font.pixelSize: 15
                         font.family: "JetBrainsMono Nerd Font"
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0
+                            verticalOffset: 1
+                            radius: 4
+                            samples: 9
+                            spread: 0.2
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                            transparentBorder: true
+                        }
                     }
                 }
 

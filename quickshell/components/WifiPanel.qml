@@ -182,14 +182,16 @@ PanelWindow {
                                     wifiConnectProc.ssid = root.wifiPasswordSSID
                                     wifiConnectProc.password = wifiPassInput.text
                                     wifiConnectProc.running = true
-                                    wifiPassInput.text = ""
-                                    root.wifiPasswordSSID = ""
+//                                    wifiPassInput.text = ""
+//                                    root.wifiPasswordSSID = ""
                                 }
                                 if (!root.connectionCompletion) {
                                   console.log("failed")
                                 }
                                 else {
                                   console.log("suckcess")
+                                  wifiPassInput.text = ""
+                                  root.wifiPasswordSSID = ""
                                 }
                             }
                             Keys.onEscapePressed: {
