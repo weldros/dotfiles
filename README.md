@@ -1,6 +1,9 @@
-my personal arch setup 
+my personal arch setup
+<br>
 to add:
-  calender
-  clock with alarm/notif
-  dashboard revamp
-  launcherPanel revamp
+  calender<br>
+	clock with alarm/notif<br>
+  dashboard revamp<br>
+  launcherPanel revamp<br>
+  musicPanel<br>
+  hyprlock<br>
