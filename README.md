@@ -1,9 +1,10 @@
 my personal arch setup
 <br>
-to add:
+to add:<br>
   calender<br>
-	clock with alarm/notif<br>
+  clock with alarm/notif<br>
   dashboard revamp<br>
   launcherPanel revamp<br>
   musicPanel<br>
   hyprlock<br>
+  music cava popup<br>
