@@ -37,6 +37,7 @@ PanelWindow {
     property bool volumeMuted: false
     property bool volumeAdjusting: false
     property real pendingVolume: 0
+    property bool headphoneCheck: false
 
     //wifi
     property bool wifiConnected: false
@@ -157,7 +158,6 @@ PanelWindow {
                 var parts = data.trim().split(";")
                 var vals = []
                 for (var i = 0; i < 12 && i < parts.length; i++) {
- //                 vals.push(parseInt(parts[i]) / 255)
                   var parsed = parseInt(parts[i])
                   vals.push(isNaN(parsed) ? 0.1 : (parsed / 255))
                 }
@@ -264,17 +264,28 @@ PanelWindow {
 
     Process {
         id: volumeProc
-        command: ["bash", "-c", "vol=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null); muted=$(echo \"$vol\" | grep -q MUTED && echo 1 || echo 0); pct=$(echo \"$vol\" | awk '{printf \"%.0f\", $2 * 100}'); echo \"$pct|$muted\""]
+        command: ["bash", "-c", "vol=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null); muted=$(echo \"$vol\" | grep -q MUTED && echo 1 || echo 0); pct=$(echo \"$vol\" | awk '{printf \"%.0f\", $2 * 100}'); headphone=$(pw-dump | jq -r '.. | objects | select(has(\"name\") and has(\"available\")) | select(.name | test(\"headphone\"; \"i\")) | \"\\(.name): \\(.available)\"' | grep -q \"yes\" && echo 1 || echo 0); echo \"$pct|$muted|$headphone\""]
         stdout: SplitParser {
             onRead: data => {
                 var parts = data.trim().split("|")
                 bar.volumePercent = parseInt(parts[0]) || 0
                 bar.volumeMuted = parts[1] === "1"
-                if (bar.volumeMuted) {
-                    bar.volumeStr = "󰝟 mute"
-                } else {
-                    var icon = bar.volumePercent > 50 ? "󰕾" : (bar.volumePercent > 0 ? "󰖀" : "󰕿")
-                    bar.volumeStr = icon + " " + bar.volumePercent + "%"
+                bar.headphoneCheck = parts[2] === "1"
+                if (bar.headphoneCheck) {
+                  if (bar.volumeMuted) {
+                      bar.volumeStr = "󰟎 mute"
+                  } else {
+                      var icon = bar.volumePercent > 50 ? "󰋋" : (bar.volumePercent > 0 ? "󰋋" : "󰋋")
+                      bar.volumeStr = icon + " " + bar.volumePercent + "%"
+                  }
+                }
+                else {
+                  if (bar.volumeMuted) {
+                      bar.volumeStr = "󰝟 mute"
+                  } else {
+                      var icon = bar.volumePercent > 50 ? "󰕾" : (bar.volumePercent > 0 ? "󰖀" : "󰕿")
+                     bar.volumeStr = icon + " " + bar.volumePercent + "%"
+                  }
                 }
             }
         }
@@ -282,7 +293,6 @@ PanelWindow {
 
     Timer {
         id: volumeDebounce
-        //interval: 5000
         repeat: true
         onTriggered: {
             volumeSetProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", bar.pendingVolume + "%"]
@@ -635,7 +645,7 @@ PanelWindow {
                    Text {
                        id: panelWindow
                        anchors.centerIn: parent
-                       text: Hyprland.activeToplevel ? Hyprland.activeToplevel.title : "Desktop"
+                       text: Hyprland.activeToplevel ? Hyprland.activeToplevel.wayland.appId: "Desktop"
                        color: root.walColor5
                         layer.enabled: true
                         layer.effect: DropShadow {
@@ -958,7 +968,7 @@ PanelWindow {
                         id: volumeLabel
                         anchors.centerIn: parent
                         text: bar.volumeStr
-                        color: bar.volumeMuted ? root.walColor8 : root.walColor5
+                        color: bar.volumeMuted ? root.walColor2 : root.walColor5
                         font.pixelSize: 11
                         font.bold: true
                         font.family: "JetBrainsMono Nerd Font"
