@@ -8,11 +8,11 @@ import Qt5Compat.GraphicalEffects
 
 PanelWindow {
   id: synth
-  visible: true//root.synthVisible
+  visible: root.synthVisible
   exclusionMode: ExclusionMode.Ignore
   anchors { top: true}
   margins { top:31}
-  implicitWidth: 420
+  implicitWidth: 780
   implicitHeight: 260
   color: "transparent"
   focusable: false
@@ -64,13 +64,14 @@ PanelWindow {
 
   Process {
     id: mediaProc
-    command: ["bash", "-c", "status=$(playerctl --player=%any status 2>/dev/null); pos=$(playerctl --player=%any position 2>/dev/null | cut -d. -f1); len=$(playerctl --player=%any metadata mpris:length 2>/dev/null); len=$((len / 1000000)); if [ \"$status\" = \"Playing\" ] || [ \"$status\" = \"Paused\" ]; then artist=$(playerctl --player=%any metadata artist 2>/dev/null); title=$(playerctl --player=%any metadata title 2>/dev/null); if [ -n \"$title\" ]; then text=\"$title\"; [ -n \"$artist\" ] && text=\"$artist - $title\"; if [ ${#text} -gt 43 ]; then text=\"${text:0:43}...\"; fi; echo \"$status|$text|$pos|$len\"; else echo 'stopped||0|0'; fi; else echo 'stopped||0|0'; fi"]
+    //command: ["bash", "-c", "status=$(playerctl --player=%any status 2>/dev/null); pos=$(playerctl --player=%any position 2>/dev/null | cut -d. -f1); len=$(playerctl --player=%any metadata mpris:length 2>/dev/null); len=$((len / 1000000)); if [ \"$status\" = \"Playing\" ] || [ \"$status\" = \"Paused\" ]; then artist=$(playerctl --player=%any metadata artist 2>/dev/null); title=$(playerctl --player=%any metadata title 2>/dev/null); if [ -n \"$title\" ]; then text=\"$title\"; [ -n \"$artist\" ] && text=\"$title <br>$artist\"; if [ ${#text} -gt 43 ]; then text=\"${text:0:43}...\"; fi; echo \"$status|$text|$pos|$len\"; else echo 'stopped||0|0'; fi; else echo 'stopped||0|0'; fi"]
+    command: ["bash", "-c", "status=$(playerctl --player=%any status 2>/dev/null); pos=$(playerctl --player=%any position 2>/dev/null | cut -d. -f1); len=$(playerctl --player=%any metadata mpris:length 2>/dev/null); len=$((len / 1000000)); if [ \"$status\" = \"Playing\" ] || [ \"$status\" = \"Paused\" ]; then artist=$(playerctl --player=%any metadata artist 2>/dev/null); title=$(playerctl --player=%any metadata title 2>/dev/null); if [ -n \"$title\" ]; then [ ${#title} -gt 90 ] && title=\"${title:0:90}...\"; text=\"$title<br>$artist\"; echo \"$status|$text|$pos|$len\"; else echo 'stopped||0|0'; fi; else echo 'stopped||0|0'; fi"]
     stdout: SplitParser {
         onRead: data => {
           var parts = data.trim().split("|")
           if (parts.length >= 4) {
             synth.mediaClass = parts[0].toLowerCase()
-            synth.mediaText = parts[1]
+            synth.mediaText = parts[1].replace("<br>" , "\n")
             synth.mediaPosition = parseInt(parts[2]) || 0
             synth.mediaLength = parseInt(parts[3]) || 0
           }
@@ -175,7 +176,7 @@ PanelWindow {
           height: Math.max(5, synth.cavaValues[index] * parent.height)
           anchors.bottom: parent.bottom
           radius: 3
-          color: root.walColor5
+          color: root.walColor1
           antialiasing: true
           Behavior on height {
             NumberAnimation { duration: 50; easing.type: Easing.OutQuad }

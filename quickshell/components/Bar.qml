@@ -755,7 +755,6 @@ PanelWindow {
                                 color: Qt.rgba(0, 0, 0, 0.4)
                                 transparentBorder: true
                             }
-
                             Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                         }
                     }
