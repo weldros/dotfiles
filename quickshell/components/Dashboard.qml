@@ -44,7 +44,7 @@ PanelWindow {
         Rectangle {
             anchors.fill: parent
             color: Qt.rgba(root.walBackground.r, root.walBackground.g, root.walBackground.b, 0.7)
-            radius: 20
+            radius: 4
 
             MouseArea {
                 anchors.fill: parent
@@ -64,7 +64,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     Layout.preferredHeight: pfpPickerOpen ? 280 : 100
                     color: Qt.rgba(0, 0, 0, 0.3)
-                    radius: 15
+                    radius: 4
                     clip: true
                     property bool pfpPickerOpen: false
                     Behavior on Layout.preferredHeight { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
@@ -82,7 +82,7 @@ PanelWindow {
                                 Rectangle {
                                     id: pfpBorder
                                     anchors.fill: parent
-                                    radius: 37
+                                    radius: 4
                                     color: "transparent"
                                     border.width: 3
                                     border.color: root.walColor5
@@ -111,7 +111,7 @@ PanelWindow {
                                     anchors.centerIn: parent
                                     width: 68
                                     height: 68
-                                    radius: 34
+                                    radius: 4
                                     visible: false
                                 }
                                 OpacityMask {
@@ -126,7 +126,7 @@ PanelWindow {
                                     anchors.bottom: parent.bottom
                                     width: 22
                                     height: 22
-                                    radius: 11
+                                    radius: 4
                                     color: root.walColor5
                                     border.width: 2
                                     border.color: root.walBackground
@@ -173,7 +173,7 @@ PanelWindow {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             color: Qt.rgba(0, 0, 0, 0.3)
-                            radius: 10
+                            radius: 4
                             visible: profileSection.pfpPickerOpen
                             ColumnLayout {
                                 anchors.fill: parent
@@ -208,7 +208,7 @@ PanelWindow {
                                                 Layout.alignment: Qt.AlignHCenter
                                                 Rectangle {
                                                     anchors.fill: parent
-                                                    radius: 24
+                                                    radius: 4
                                                     color: "transparent"
                                                     border.width: 2
                                                     border.color: thumbMa.containsMouse ? root.walColor13 : root.walColor5
@@ -231,7 +231,7 @@ PanelWindow {
                                                     anchors.centerIn: parent
                                                     width: 44
                                                     height: 44
-                                                    radius: 22
+                                                    radius: 4
                                                     visible: false
                                                 }
                                                 OpacityMask {
@@ -287,15 +287,14 @@ PanelWindow {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 50
                     color: Qt.rgba(0, 0, 0, 0.3)
-                    radius: 15
+                    radius: 4
                     Row {
                         anchors.centerIn: parent
                         spacing: 25
-                        PowerBtn { icon: "⏻"; iconColor: root.walColor2; cmd: "systemctl poweroff" }
-                        PowerBtn { icon: "󰜉"; iconColor: root.walColor13; cmd: "systemctl reboot" }
+                        PowerBtn { icon: "⏻"; iconColor: root.walColor5; cmd: "systemctl poweroff" }
+                        PowerBtn { icon: "󰜉"; iconColor: root.walColor5; cmd: "systemctl reboot" }
                         PowerBtn { icon: "󰌾"; iconColor: root.walColor5; cmd: "hyprlock" }
-                        PowerBtn { icon: "󰒲"; iconColor: root.walColor4; cmd: "systemctl suspend" }
-                        PowerBtn { icon: "󰍃"; iconColor: root.walColor1; cmd: "hyprctl dispatch exit" }
+                        PowerBtn { icon: "󰒲"; iconColor: root.walColor5; cmd: "systemctl suspend" }
                     }
                 }
 
@@ -303,7 +302,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 70
                     color: Qt.rgba(0, 0, 0, 0.3)
-                    radius: 15
+                    radius: 4
                     RowLayout {
                         anchors.fill: parent
                         anchors.margins: 15
@@ -339,7 +338,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 140
                     color: Qt.rgba(0, 0, 0, 0.3)
-                    radius: 15
+                    radius: 4
                     Row {
                         anchors.centerIn: parent
                         spacing: 30
@@ -353,7 +352,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 100
                     color: Qt.rgba(0, 0, 0, 0.3)
-                    radius: 15
+                    radius: 4
                     Column {
                         anchors.fill: parent
                         anchors.margins: 15
@@ -493,7 +492,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     color: Qt.rgba(0, 0, 0, 0.3)
-                    radius: 15
+                    radius: 4
                     Column {
                         anchors.fill: parent
                         anchors.margins: 15
@@ -616,7 +615,7 @@ PanelWindow {
         property string cmd
         width: 40
         height: 40
-        radius: 10
+        radius: 4
         color: powerMa.containsMouse ? Qt.rgba(1,1,1,0.1) : "transparent"
         Behavior on color { ColorAnimation { duration: 150 } }
         Text {

@@ -18,8 +18,8 @@ PanelWindow {
     color: "transparent"
 
     //general
-    property color notchColor: Qt.rgba(0, 0, 0, 0.50)
-    property color notchHoverColor: Qt.rgba(0, 0, 0, 0.62)
+    property color notchColor: Qt.rgba(0, 0, 0, 0.40)
+    property color notchHoverColor: Qt.rgba(0, 0, 0, 0.6)
     property int notchRadius: 4
     property int notchHeight: 28
     property int activeWsId: 1
@@ -363,7 +363,10 @@ PanelWindow {
                 bar.batteryTime = parts.length > 2 ? parts[2] : ""
                 if (bar.batteryCharging) bar.batteryClass = "charging"
                 else if (bar.batteryPercent <= 10) bar.batteryClass = "critical"
-                else if (bar.batteryPercent <= 25) bar.batteryClass = "warning"
+                else if (bar.batteryPercent <= 25) {
+                  bar.batteryClass = "warning"
+                  bar.notifiedWarning = true
+                }
                 else bar.batteryClass = ""
             }
         }
@@ -398,7 +401,16 @@ PanelWindow {
         property bool hovered: false
         property string tooltip: ""
         default property alias content: contentItem.data
-
+        layer.enabled: true
+        layer.effect: DropShadow {
+          horizontalOffset: 1
+          verticalOffset: 1
+          radius: 3
+          samples: 10
+          spread: 0.4
+          color: Qt.rgba(0, 0, 0, 0.25)
+          transparentBorder: true
+        }
         height: bar.notchHeight
 
         Item {
@@ -415,7 +427,7 @@ PanelWindow {
                 antialiasing: true
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: notchRoot.hovered ? Qt.rgba(0, 0, 0, 0.45) : Qt.rgba(0, 0, 0, 0.30) }
+                    GradientStop { position: 0; color: notchRoot.hovered ? Qt.rgba(0, 0, 0, 0.20) : Qt.rgba(0, 0, 0, 0.15) }
                     GradientStop { position: 1.0; color: notchRoot.hovered ? bar.notchHoverColor : bar.notchColor }
                 }
             }
@@ -441,7 +453,7 @@ PanelWindow {
                 anchors.centerIn: parent
                 text: notchRoot.tooltip
                 color: root.walForeground
-                font.pixelSize: 10
+                font.pixelSize: 11
                 font.family: "JetBrainsMono Nerd Font"
             }
         }
@@ -475,7 +487,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "󰣇"
-                        color: root.walColor5
+                        color: root.walColor2
                         layer.enabled: true
                         layer.effect: DropShadow {
                             horizontalOffset: 0
@@ -523,7 +535,7 @@ PanelWindow {
                         id: wsContainer
                         anchors.centerIn: parent
                         width: wsRow.width
-                        height: 40
+                        height: 38
 
                         Rectangle {
                             id: wsHighlight
@@ -574,8 +586,8 @@ PanelWindow {
                                     property bool isHovered: wsMA.containsMouse
 
                                     visible: modelData.id > 0
-                                    width: Math.max(wsText.implicitWidth + 14, 26)
-                                    height: 18
+                                    implicitWidth: Math.max(wsText.implicitWidth + 14, 24)
+                                    implicitHeight: 18
 
                                     onIsActiveChanged: updateHighlight()
                                     onXChanged: if (isActive) updateHighlight()
@@ -600,9 +612,10 @@ PanelWindow {
                                     Text {
                                         id: wsText
                                         anchors.centerIn: parent
+                                        anchors.verticalCenterOffset: -1
                                         text: modelData.name || modelData.id.toString()
                                         color: isActive ? root.walBackground : (isHovered ? root.walForeground : Qt.rgba(root.walForeground.r, root.walForeground.g, root.walForeground.b, 0.5))
-                                        font.pixelSize: 10
+                                        font.pixelSize: 9
                                         font.bold: true
                                         font.family: "JetBrainsMono Nerd Font"
 
@@ -782,11 +795,11 @@ PanelWindow {
                 acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                 onClicked: function(mouse) {
                     if (mouse.button === Qt.RightButton)
-                        root.toggleMusic()
+                        root.toggleSynth()
                     else if (mouse.button === Qt.MiddleButton) {
                         if (!mediaNextProc.running) mediaNextProc.running = true
                     } else {
-                        if (!mediaPlayPauseProc.running) mediaPlayPauseProc.running = true
+                      if (!mediaPlayPauseProc.running) mediaPlayPauseProc.running = true
                     }
                 }
                 onWheel: function(wheel) {
@@ -921,7 +934,7 @@ PanelWindow {
                                 anchors.centerIn: batteryBody
                                 text: "󰄬"
                                 color: root.walBackground
-                                font.pixelSize: 8
+                                font.pixelSize: 7
                                 font.family: "JetBrainsMono Nerd Font"
                                 visible: bar.batteryPercent >= 100
                             }
@@ -1060,7 +1073,17 @@ PanelWindow {
                         spacing: 8
 
                         Text {
-                            anchors.verticalCenter: parent.verticalCenter
+                          anchors.verticalCenter: parent.verticalCenter
+                          layer.enabled: true
+                          layer.effect: DropShadow {
+                              horizontalOffset: 0
+                              verticalOffset: 1
+                              radius: 4
+                              samples: 9
+                              spread: 0.2
+                              color: Qt.rgba(0, 0, 0, 0.4)
+                              transparentBorder: true
+                            }
                             text: {
                                 if (!bar.wifiConnected) return "󰤭"
                                 if (bar.wifiStrength > 75) return "󰤨"
@@ -1075,15 +1098,15 @@ PanelWindow {
                             Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic } }
                         }
 
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: bar.btConnected ? "󰂱" : "󰂲"
-                            color: bar.btConnected ? root.walColor5 : root.walColor8
-                            font.pixelSize: 13
-                            font.family: "JetBrainsMono Nerd Font"
-
-                            Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic } }
-                        }
+//                        Text {
+//                            anchors.verticalCenter: parent.verticalCenter
+//                            text: bar.btConnected ? "󰂱" : "󰂲"
+//                            color: bar.btConnected ? root.walColor5 : root.walColor8
+//                            font.pixelSize: 13
+//                            font.family: "JetBrainsMono Nerd Font"
+//
+//                            Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic } }
+//                        }
                     }
                 }
 

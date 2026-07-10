@@ -21,7 +21,7 @@ PanelWindow {
     Rectangle {
         anchors.fill: parent
         color: Qt.rgba(root.walBackground.r, root.walBackground.g, root.walBackground.b, 0.7)
-        radius: 20
+        radius: 4
 
         ColumnLayout {
             anchors.fill: parent
@@ -32,7 +32,7 @@ PanelWindow {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 42
                 color: Qt.rgba(0, 0, 0, 0.3)
-                radius: 12
+                radius: 4
                 RowLayout {
                     anchors.fill: parent
                     anchors.margins: 4
@@ -40,14 +40,14 @@ PanelWindow {
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        radius: 8
+                        radius: 3
                         color: root.activeTab === 0 ? Qt.rgba(root.walColor5.r, root.walColor5.g, root.walColor5.b, 0.2) : "transparent"
                         Behavior on color { ColorAnimation { duration: 150 } }
                         RowLayout {
                             anchors.centerIn: parent
                             spacing: 6
                             Text {
-                                text: "󰀻"
+                                text: "󰨝"
                                 color: root.activeTab === 0 ? root.walColor5 : root.walColor8
                                 font.pixelSize: 14
                                 font.family: "JetBrainsMono Nerd Font"
@@ -55,7 +55,7 @@ PanelWindow {
                             Text {
                                 text: "Apps"
                                 color: root.activeTab === 0 ? root.walColor5 : root.walColor8
-                                font.pixelSize: 13
+                                font.pixelSize: 11
                                 font.bold: root.activeTab === 0
                                 font.family: "JetBrainsMono Nerd Font"
                             }
@@ -72,7 +72,7 @@ PanelWindow {
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        radius: 8
+                        radius: 4
                         color: root.activeTab === 1 ? Qt.rgba(root.walColor13.r, root.walColor13.g, root.walColor13.b, 0.2) : "transparent"
                         Behavior on color { ColorAnimation { duration: 150 } }
                         RowLayout {
@@ -87,7 +87,7 @@ PanelWindow {
                             Text {
                                 text: "Walls"
                                 color: root.activeTab === 1 ? root.walColor13 : root.walColor8
-                                font.pixelSize: 13
+                                font.pixelSize: 11
                                 font.bold: root.activeTab === 1
                                 font.family: "JetBrainsMono Nerd Font"
                             }
@@ -120,7 +120,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 42
                         color: Qt.rgba(0, 0, 0, 0.3)
-                        radius: 12
+                        radius: 4
                         border.width: searchInput.activeFocus ? 1 : 0
                         border.color: root.walColor5
                         RowLayout {
@@ -131,7 +131,7 @@ PanelWindow {
                             Text {
                                 text: ""
                                 color: root.walColor8
-                                font.pixelSize: 14
+                                font.pixelSize: 11
                                 font.family: "JetBrainsMono Nerd Font"
                             }
                             TextInput {
@@ -139,7 +139,7 @@ PanelWindow {
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 color: root.walForeground
-                                font.pixelSize: 14
+                                font.pixelSize: 11
                                 font.family: "JetBrainsMono Nerd Font"
                                 verticalAlignment: TextInput.AlignVCenter
                                 selectByMouse: true
@@ -210,7 +210,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         color: Qt.rgba(0, 0, 0, 0.3)
-                        radius: 15
+                        radius: 4
                         clip: true
 
                         ListView {
@@ -269,7 +269,7 @@ PanelWindow {
                             delegate: Rectangle {
                                 width: appListView.width
                                 height: 48
-                                radius: 12
+                                radius: 4
                                 color: {
                                     if (index === root.selectedIndex)
                                         return Qt.rgba(root.walColor5.r, root.walColor5.g, root.walColor5.b, 0.2)
@@ -282,7 +282,7 @@ PanelWindow {
                                     visible: index === root.selectedIndex
                                     width: 3
                                     height: 22
-                                    radius: 2
+                                    radius: 4
                                     color: root.walColor5
                                     anchors.left: parent.left
                                     anchors.leftMargin: 4
@@ -298,7 +298,7 @@ PanelWindow {
                                     Rectangle {
                                         width: 32
                                         height: 32
-                                        radius: 8
+                                        radius: 4
                                         color: Qt.rgba(0, 0, 0, 0.2)
                                         Image {
                                             anchors.centerIn: parent
@@ -378,7 +378,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 28
                         color: Qt.rgba(0, 0, 0, 0.3)
-                        radius: 10
+                        radius: 4
                         RowLayout {
                             anchors.fill: parent
                             anchors.leftMargin: 12
@@ -405,7 +405,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 42
                         color: Qt.rgba(0, 0, 0, 0.3)
-                        radius: 12
+                        radius: 4
                         border.width: wallSearchInput.activeFocus ? 1 : 0
                         border.color: root.walColor13
                         RowLayout {
@@ -424,7 +424,7 @@ PanelWindow {
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 color: root.walForeground
-                                font.pixelSize: 14
+                                font.pixelSize: 11
                                 font.family: "JetBrainsMono Nerd Font"
                                 verticalAlignment: TextInput.AlignVCenter
                                 selectByMouse: true
@@ -504,7 +504,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         color: Qt.rgba(0, 0, 0, 0.3)
-                        radius: 15
+                        radius: 4
                         clip: true
 
                         GridView {
@@ -566,7 +566,7 @@ PanelWindow {
                                 Rectangle {
                                     anchors.fill: parent
                                     anchors.margins: 4
-                                    radius: 10
+                                    radius: 4
                                     color: {
                                         if (index === root.wallSelectedIndex)
                                             return Qt.rgba(root.walColor13.r, root.walColor13.g, root.walColor13.b, 0.25)
@@ -590,7 +590,7 @@ PanelWindow {
                                             Layout.fillHeight: true
                                             Rectangle {
                                                 anchors.fill: parent
-                                                radius: 7
+                                                radius: 4
                                                 color: Qt.rgba(0.3, 0.3, 0.3, 0.3)
                                                 visible: wallThumbImage.status !== Image.Ready
                                             }
@@ -614,7 +614,7 @@ PanelWindow {
                                             Rectangle {
                                                 id: wallThumbMaskRect
                                                 anchors.fill: parent
-                                                radius: 7
+                                                radius: 4
                                                 visible: false
                                             }
                                             OpacityMask {
@@ -629,7 +629,7 @@ PanelWindow {
                                                 anchors.margins: 3
                                                 width: 16
                                                 height: 16
-                                                radius: 8
+                                                radius: 4
                                                 color: root.walColor2
                                                 Text {
                                                     anchors.centerIn: parent
@@ -703,7 +703,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 28
                         color: Qt.rgba(0, 0, 0, 0.3)
-                        radius: 10
+                        radius: 4
                         RowLayout {
                             anchors.fill: parent
                             anchors.leftMargin: 12

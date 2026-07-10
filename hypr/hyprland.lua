@@ -222,6 +222,7 @@ hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.window.swap({ next = true }))
 hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd(quickshellApp))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(screenLock))
 hl.bind(mainMod .. " + ALT + RETURN", hl.dsp.exec_cmd("kitty"))
+hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("bash -lc ~/mch.sh"))
 
 hl.bind("ALT + SHIFT + A", hl.dsp.window.swap({ direction = "l" }))
 hl.bind("ALT + SHIFT + S", hl.dsp.window.swap({ direction = "d" }))

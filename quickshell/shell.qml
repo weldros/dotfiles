@@ -18,7 +18,7 @@ ShellRoot {
     property string statePath: configPath + "/state"
 
     property bool dashboardVisible: false
-    property bool musicVisible: false
+    property bool synthVisible: false
     property bool launcherVisible: false
     property bool wifiVisible: false
     property bool btVisible: false
@@ -109,7 +109,7 @@ ShellRoot {
         if (dashboardVisible) { wifiVisible = false; btVisible = false }
     }
 
-    function toggleMusic() { musicVisible = !musicVisible }
+    function toggleSynth() { synthVisible = !synthVisible }
 
     function toggleWifi() {
         wifiVisible = !wifiVisible
@@ -658,7 +658,8 @@ ShellRoot {
 //    MusicPanel {}
     WifiPanel {}
 //    BluetoothPanel {}
-    LauncherPanel {}
+LauncherPanel {}
+Synth {}
 
     IpcHandler {
         target: "launcher"
@@ -672,8 +673,8 @@ ShellRoot {
         function toggle() { root.toggleDashboard() }
     }
     IpcHandler {
-        target: "music"
-        function toggle() { root.toggleMusic() }
+        target: "synth"
+        function toggle() { root.toggleSynth() }
     }
     IpcHandler {
         target: "wallpaper"
