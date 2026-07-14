@@ -17,7 +17,7 @@ PanelWindow {
   color: "transparent"
   focusable: false
 
-  property var cavaValues: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,]
+  property var cavaValues: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
   property string mediaText: ""
   property string mediaClass: "stopped"
   property real mediaPosition: 0
@@ -82,16 +82,16 @@ PanelWindow {
   Process {
     id: cavaProc
     running: synth.visible
-    command: ["cava", "-p", Quickshell.env("HOME") + "/.config/cava/config_raw"]
+    command: ["cava", "-p", Quickshell.env("HOME") + "/.config/cava/config_raw_synth"]
     stdout: SplitParser {
       onRead: data => {
         var parts = data.trim().split(";")
         var vals = []
-        for (var i = 0; i < 12 && i < parts.length; i++) {
+        for (var i = 0; i < 48 && i < parts.length; i++) {
             var parsed = parseInt(parts[i])
             vals.push(isNaN(parsed) ? 0.1 : (parsed / 255))
         }
-        while (vals.length < 12) vals.push(0.1)
+        while (vals.length < 48) vals.push(0.1)
         if (vals.length > 0) {
           synth.cavaValues = vals
         }
@@ -169,7 +169,7 @@ PanelWindow {
       spacing: 2
 
       Repeater {
-        model: 12
+        model: 48
 
         Rectangle {
           width: (parent.width - (parent.spacing * (synth.cavaValues.length - 1))) / Math.max(1, synth.cavaValues.length)
