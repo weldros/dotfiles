@@ -52,9 +52,8 @@ hl.config({
 	},
 })
 
-hl.permission("/usr/(bin|local/bin)/grim", "screencopy", "allow")
+hl.permission("/usr/(bin|local/bin)/hyprlock", "screencopy", "allow")
 hl.permission("/usr/(lib|libexec|lib64)/xdg-desktop-portal-hyprland", "screencopy", "allow")
-hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")
 
 -- Decoration
 hl.config({
@@ -216,7 +215,8 @@ hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(ss))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(ssRegion))
 hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd(walset))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
-hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen_state({ internal = 2, client = 0, action = "toggle" }))
+hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen_state({ internal = 0, client = 2, action = "toggle" }))
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd(quickshellWall))
 hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.window.swap({ next = true }))
 hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd(quickshellApp))
@@ -230,7 +230,6 @@ hl.bind("ALT + SHIFT + W", hl.dsp.window.swap({ direction = "u" }))
 hl.bind("ALT + SHIFT + D", hl.dsp.window.swap({ direction = "r" }))
 
 -- Workspace
-
 for i = 1, 10 do
 	local key = i % 10 -- 10 maps to key 0
 	hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
