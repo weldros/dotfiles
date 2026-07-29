@@ -1198,6 +1198,8 @@ PanelWindow {
                     id: dateMA
                     anchors.fill: parent
                     hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.toggleCalendar()
                 }
               }
 

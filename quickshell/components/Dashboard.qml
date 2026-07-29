@@ -11,7 +11,7 @@ PanelWindow {
     visible: true
     exclusionMode: ExclusionMode.Ignore
     anchors { top: true; bottom: true; right: true }
-    margins { top: 40; bottom: 10; right: root.dashboardVisible ? 6 : -450 }
+    margins { top: 32; bottom: 8; right: root.dashboardVisible ? 8 : -450 }
     implicitWidth: 420
     color: "transparent"
     focusable: true

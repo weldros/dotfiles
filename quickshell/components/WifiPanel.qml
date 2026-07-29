@@ -10,7 +10,7 @@ PanelWindow {
     visible: true
     exclusionMode: ExclusionMode.Ignore
     anchors { top: true; right: true }
-    margins { top: 40; right: root.wifiVisible ? 6 : -350 }
+    margins { top: 32; right: root.wifiVisible ? 8 : -350 }
     implicitHeight: 420
     implicitWidth: 320
     color: "transparent"
@@ -37,7 +37,7 @@ PanelWindow {
         Rectangle {
             anchors.fill: parent
             color: Qt.rgba(root.walBackground.r, root.walBackground.g, root.walBackground.b, 0.7)
-            radius: 20
+            radius: 4
 
             ColumnLayout {
                 anchors.fill: parent
@@ -63,13 +63,13 @@ PanelWindow {
                     Rectangle {
                         width: 44
                         height: 24
-                        radius: 12
+                        radius: 4
                         color: root.wifiEnabled ? root.walColor5 : Qt.rgba(0.3, 0.3, 0.3, 0.5)
                         Behavior on color { ColorAnimation { duration: 200 } }
                         Rectangle {
                             width: 20
                             height: 20
-                            radius: 10
+                            radius: 4
                             y: 2
                             x: root.wifiEnabled ? 22 : 2
                             color: root.walBackground
@@ -86,7 +86,7 @@ PanelWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 50
-                    radius: 12
+                    radius: 4
                     color: Qt.rgba(0, 0, 0, 0.3)
                     visible: root.wifiCurrentSSID !== ""
                     RowLayout {
@@ -121,7 +121,7 @@ PanelWindow {
                         Rectangle {
                             width: 28
                             height: 28
-                            radius: 8
+                            radius: 4
                             color: wifiDiscMa.containsMouse ? Qt.rgba(1,1,1,0.1) : "transparent"
                             Text {
                                 anchors.centerIn: parent
@@ -144,7 +144,7 @@ PanelWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    radius: 10
+                    radius: 4
                     color: Qt.rgba(0, 0, 0, 0.3)
                     visible: root.wifiPasswordSSID !== ""
                     RowLayout {
@@ -202,7 +202,7 @@ PanelWindow {
                         Rectangle {
                             width: 24
                             height: 24
-                            radius: 6
+                            radius: 4
                             color: root.walColor5
                             Text {
                                 anchors.centerIn: parent
@@ -242,7 +242,7 @@ PanelWindow {
                     Rectangle {
                         width: 24
                         height: 24
-                        radius: 6
+                        radius: 4
                         color: wifiRefreshMa.containsMouse ? Qt.rgba(1,1,1,0.1) : "transparent"
                         Text {
                             anchors.centerIn: parent
@@ -267,7 +267,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     color: Qt.rgba(0, 0, 0, 0.3)
-                    radius: 12
+                    radius: 4
                     clip: true
                     ListView {
                         anchors.fill: parent
@@ -278,7 +278,7 @@ PanelWindow {
                         delegate: Rectangle {
                             width: parent ? parent.width : 0
                             height: 44
-                            radius: 10
+                            radius: 4
                             color: wifiNetMa.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : "transparent"
                             Behavior on color { ColorAnimation { duration: 120 } }
                             RowLayout {

@@ -1,18 +1,18 @@
 -- Monitor
+--hl.monitor({
+--	output = "",
+--	mode = "preferred",
+--	position = "0x0",
+--	scale = "1",
+--})
+
 hl.monitor({
-	output = "",
-	mode = "preferred",
+	output = "eDP-1",
+	mode = "1920x1080@60",
 	position = "0x0",
 	scale = "1",
 })
 
---hl.monitor({
-----	output = "eDP-1",
-----	mode = "1920x1080@60",
-----	position = "0x0",
-----	scale = "1",
-----})
---
 --hl.monitor({
 ----	output = "HDMI-A-1",
 ----	mode = "1360x768@60",
@@ -110,7 +110,7 @@ hl.curve("almostLinear", { type = "bezier", points = { { 0.5, 0.5 }, { 0.75, 1 }
 hl.curve("quick", { type = "bezier", points = { { 0.15, 0 }, { 0.1, 1 } } })
 
 -- Default springs
-hl.curve("easy", { type = "spring", mass = 1, stiffness = 71.2633, dampening = 15.8273644 })
+hl.curve("easy", { type = "spring", mass = 0.6, stiffness = 265.2633, dampening = 25.8273644 })
 
 hl.animation({ leaf = "global", enabled = true, speed = 10, bezier = "default" })
 hl.animation({ leaf = "border", enabled = true, speed = 5.39, bezier = "easeOutQuint" })

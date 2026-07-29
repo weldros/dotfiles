@@ -11,11 +11,11 @@ PanelWindow {
     visible: true
     exclusionMode: ExclusionMode.Ignore
     anchors { top: true; bottom: true; left: true }
-    margins { top: 40; bottom: 10; left: root.launcherVisible ? 6 : -450 }
+    margins { top: 32; bottom: 8; left: root.launcherVisible ? 8 : -450 }
     implicitWidth: 420
     color: "transparent"
     focusable: true
-    WlrLayershell.keyboardFocus: root.launcherVisible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: root.launcherVisible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
     Behavior on margins.left { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
 
     Rectangle {

@@ -19,6 +19,7 @@ ShellRoot {
 
     property bool dashboardVisible: false
     property bool synthVisible: false
+    property bool calendarVisible: false
     property bool launcherVisible: false
     property bool wifiVisible: false
     property bool btVisible: false
@@ -61,7 +62,9 @@ ShellRoot {
             }
         }
         return result
-    }
+      }
+    property int currentYearView: new Date().getFullYear()
+    property int currentMonthView: new Date().getMonth()
     property int wallSelectedIndex: 0
     property string currentWallpaper: ""
     property bool wallsLoaded: false
@@ -106,14 +109,19 @@ ShellRoot {
 
     function toggleDashboard() {
         dashboardVisible = !dashboardVisible
-        if (dashboardVisible) { wifiVisible = false; btVisible = false }
+        if (dashboardVisible) { wifiVisible = false; btVisible = false; calendarVisible = false }
     }
 
     function toggleSynth() { synthVisible = !synthVisible }
 
+    function toggleCalendar() {
+      calendarVisible = !calendarVisible
+      if (calendarVisible) { wifiVisible = false; dashboardVisible = false }
+    }
+
     function toggleWifi() {
         wifiVisible = !wifiVisible
-        if (wifiVisible) { btVisible = false; dashboardVisible = false; refreshWifi() }
+        if (wifiVisible) { btVisible = false; dashboardVisible = false; calendarVisible = false; refreshWifi() }
     }
 
     function toggleBluetooth() {
@@ -653,13 +661,12 @@ ShellRoot {
         onTriggered: refreshBluetooth()
     }
 
-    Bar {}
-    Dashboard {}
-//    MusicPanel {}
-    WifiPanel {}
-//    BluetoothPanel {}
+Bar {}
+Dashboard {}
+WifiPanel {}
 LauncherPanel {}
 Synth {}
+Calendar {}
 
     IpcHandler {
         target: "launcher"
@@ -675,7 +682,12 @@ Synth {}
     IpcHandler {
         target: "synth"
         function toggle() { root.toggleSynth() }
+      }
+    IpcHandler {
+        target: "calendar"
+        function toggle() { root.toggleCalendar() }
     }
+
     IpcHandler {
         target: "wallpaper"
         function toggle() {
