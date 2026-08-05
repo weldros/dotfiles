@@ -1,0 +1,58 @@
+@import "/home/piyush/.cache/wal/colors-rofi-dark.rasi"
+
+configuration {
+  font: "monospace 8";
+  drun {display-name: "";}
+  drun-display-format: "{icon} {name}";
+  show-icons: true;
+  icon-theme: "Papirus";
+  /* timeout {
+    delay: 10;
+    action: "kb-cancel";
+  } */
+}
+
+* {
+    selected-active-background: #42445A00;
+    selected-active-foreground: #42445A00;
+    selected-normal-background: #42445A00;
+    selected-normal-foreground: #42445A00;
+    selected-urgent-background: #42445A00;
+    selected-urgent-foreground: #42445A00;
+}
+
+window { 
+    width: 12%;
+}
+
+mainbox {
+  children: [inputbar, listview];
+}
+
+inputbar {
+  children: [prompt, entry];
+}
+
+entry {
+  padding:2px 17px 10px;
+}
+
+prompt {
+  padding: 0 0;
+}
+
+listview {
+  lines: 7;
+}
+
+element {
+  children: [element-text];
+}
+
+element-text {
+  padding: 12px;
+}
+
+element-text selected {
+  text-color: white;
+}

@@ -1,0 +1,33 @@
+#![enable(implicit_some)]
+#![enable(unwrap_newtypes)]
+#![enable(unwrap_variant_newtypes)]
+
+// Catppuccin Mocha inspired theme for rmpc
+(
+    colors: (
+        background: "#1e1e2e",    // main background
+        foreground: "#cdd6f4",    // main text color
+        accent:     "#89b4fa",    // highlights / active
+        highlight:  "#f38ba8",    // selected item or progress
+        dim:        "#6c7086",    // inactive / secondary text
+        border:     "#313244",    // borders or separators
+        error:      "#f38ba8",    // errors
+        warning:    "#f9e2af",    // warnings
+        success:    "#a6e3a1",    // success / ok
+    ),
+
+    // UI component specific overrides (optional)
+    queue: (
+        now_playing_color: "#94e2d5",
+        selected_color:    "#f5c2e7",
+    ),
+    
+    ),
+    status_bar: (
+        background: "#181825",
+        foreground: "#cdd6f4",
+        accent: "#89b4fa",
+    ),
+    search_highlight: "#f38ba8",
+    border_style: Rounded,
+)
