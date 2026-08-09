@@ -13,7 +13,7 @@ ShellRoot {
 
     property string configPath: Quickshell.env("HOME") + "/.config/quickshell"
     property string homePath: Quickshell.env("HOME")
-    property string wallpaperPath: homePath + "/wallpapers"
+    property string wallpaperPath: homePath + "/Pictures/wallpapers"
     property string cachePath: homePath + "/.cache"
     property string statePath: configPath + "/state"
 
@@ -254,7 +254,7 @@ ShellRoot {
             "ln -sf '" + wallpaper.path + "' '" + root.wallpaperPath + "/current' && " +
             "awww img '" + wallpaper.path + "' --transition-type any --transition-duration 2 --transition-fps 80 --transition-step 60 & " +
             "wal -i '" + wallpaper.path + "' -n -q && " +
-            "python /home/piyush/.local/bin/conkycolorspython.py && " +
+            "python ~/.config/scripts/conkycolorspython.py && " +
             "sleep 0.3"
         ]
         applyWallProc.running = true
