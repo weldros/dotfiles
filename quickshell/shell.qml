@@ -482,17 +482,19 @@ ShellRoot {
         command: ["bash", "-c", "iwctl station wlan0 get-networks | sed '1,4d' | awk 'NF >= 2 {sig=$NF; sec=(NF>=3?$(NF-1):\"open\"); for(i=1;i<=(NF-(NF>=3?2:1));i++) printf \"%s \", $i; print \":\" sig \":\" sec}' | head -20"]
         stdout: SplitParser {
             onRead: data => {
-                var line = data.trim()
+              var line = data.trim()
+
                 if (line.length === 0) return
-                var parts = line.split(":")
+                  var parts = line.split(":")
                 if (parts.length < 2) return
-                var ssid = parts[0].replace(/\u001b\[[0-9;]*[mGK]/g, "").replace(/^\s*>\s*/, "").trim()
+                  var ssid = parts[0].replace(/\u001b\[[0-9;]*[mGK]/g, "").replace(/^\s*>\s*/, "").trim()
                 if (ssid === "" || ssid === root.wifiCurrentSSID) return
-                var rawSignal = parts[1].replace(/\u001b\[[0-9;]*[mGK]/g, "")
-                var signal = (rawSignal.match(/\*/g) || []).length * 25
-                var security = parts.length >= 3 ? parts[2].trim() : ""
-                var current = root.wifiNetworks.slice()
-                var found = false
+                  var rawSignal = parts[1].replace(/\u001b\[[0-9;]*[mGK]/g, "")
+                  var signal = (rawSignal.match(/\*/g) || []).length * 25
+                  var security = parts.length >= 3 ? parts[2].trim() : ""
+                  var current = root.wifiNetworks.slice()
+                  var found = false
+
                 for (var i = 0; i < current.length; i++) {
                     if (current[i].ssid === ssid) {
                         current[i].signal = signal
@@ -524,7 +526,35 @@ ShellRoot {
         interval: 1000
         repeat: false
         onTriggered: refreshWifi()
+      }
+
+    Process {
+    id: wifiOpenConnectProc
+    property string ssid: ""
+    property bool connectionCompletion: false
+    property string _outputBuffer: ""
+    command: {
+        return ["bash", "-c", "iwctl station wlan0 connect '" + ssid + "' 2>&1"]
     }
+
+    stdout: SplitParser {
+        splitMarker: ""
+        onRead: data => {
+            wifiOpenConnectProc._outputBuffer += data
+        }
+    }
+    onExited: {
+        root.wifiConnecting = false
+        root.wifiPasswordSSID = ""
+        if (wifiOpenConnectProc._outputBuffer.includes("Operation failed") || exitCode !== 0) {
+            connectionCompletion = false
+        }
+        else {
+            connectionCompletion = true
+        }
+        if (!wifiCurrentProc.running) wifiCurrentProc.running = true
+    }
+}
 
     Process {
         id: wifiConnectProc

@@ -182,8 +182,6 @@ PanelWindow {
                                     wifiConnectProc.ssid = root.wifiPasswordSSID
                                     wifiConnectProc.password = wifiPassInput.text
                                     wifiConnectProc.running = true
-//                                    wifiPassInput.text = ""
-//                                    root.wifiPasswordSSID = ""
                                 }
                                 if (!root.connectionCompletion) {
                                   console.log("failed")
@@ -312,22 +310,26 @@ PanelWindow {
                                 }
                             }
                             MouseArea {
-                                id: wifiNetMa
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    if (modelData.security !== "" && modelData.security !== "--") {
-                                        root.wifiPasswordSSID = modelData.ssid
-                                        wifiPassInput.forceActiveFocus()
-                                    } else {
-                                        root.wifiConnecting = true
-                                        wifiConnectProc.ssid = modelData.ssid
-                                        wifiConnectProc.password = ""
-                                        wifiConnectProc.running = true
+                             id: wifiNetMa
+                             anchors.fill: parent
+                             hoverEnabled: true
+                             cursorShape: Qt.PointingHandCursor
+
+                             onClicked: {
+                                 if (root.wifiConnecting === false) {
+                                     var sec = modelData.security;
+
+                                     if (sec === "open") {
+                                         root.wifiConnecting = true
+                                         wifiOpenConnectProc.ssid = modelData.ssid
+                                         wifiOpenConnectProc.running = true 
+                                     } else {
+                                         root.wifiPasswordSSID = modelData.ssid
+                                         wifiPassInput.forceActiveFocus()
                                     }
                                 }
                             }
+                         }
                         }
                         ScrollBar.vertical: ScrollBar { active: true; width: 4 }
                     }
