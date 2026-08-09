@@ -85,7 +85,7 @@ PanelWindow {
 
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 50
+                    Layout.preferredHeight: 60
                     radius: 4
                     color: Qt.rgba(0, 0, 0, 0.3)
                     visible: root.wifiCurrentSSID !== ""
@@ -196,35 +196,60 @@ PanelWindow {
                                 root.wifiPasswordSSID = ""
                                 wifiPassInput.text = ""
                             }
-                        }
-                        Rectangle {
-                            width: 24
-                            height: 24
-                            radius: 4
-                            color: root.walColor5
-                            Text {
-                                anchors.centerIn: parent
-                                text: "→"
-                                color: root.walBackground
-                                font.pixelSize: 11
-                                font.bold: true
-                                font.family: "JetBrainsMono Nerd Font"
+                          }
+                          Row {
+                            spacing: 2
+                          Rectangle {
+                              width: 20
+                              height: 20
+                              radius: 4
+                              color: root.walColor5
+                              Text {
+                                  anchors.centerIn: parent
+                                  text: "→"
+                                  color: root.walBackground
+                                  font.pixelSize: 9
+                                  font.bold: true
+                                  font.family: "JetBrainsMono Nerd Font"
+                              }
+                              MouseArea {
+                                  anchors.fill: parent
+                                  cursorShape: Qt.PointingHandCursor
+                                  onClicked: {
+                                      if (wifiPassInput.text.length > 0) {
+                                          root.wifiConnecting = true
+                                          wifiConnectProc.ssid = root.wifiPasswordSSID
+                                          wifiConnectProc.password = wifiPassInput.text
+                                          wifiConnectProc.running = true
+                                          wifiPassInput.text = ""
+                                      }
+                                  }
+                              }
                             }
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    if (wifiPassInput.text.length > 0) {
-                                        root.wifiConnecting = true
-                                        wifiConnectProc.ssid = root.wifiPasswordSSID
-                                        wifiConnectProc.password = wifiPassInput.text
-                                        wifiConnectProc.running = true
-                                        wifiPassInput.text = ""
-                                    }
-                                }
-                            }
-                        }
-                    }
+                            Rectangle {
+                              width: 20
+                              height: 20
+                              radius: 4
+                              color: root.walColor5
+                              Text {
+                                  anchors.centerIn: parent
+                                  text: ""
+                                  color: root.walBackground
+                                  font.pixelSize: 8
+                                  font.bold: true
+                                  font.family: "JetBrainsMono Nerd Font"
+                              }
+                              MouseArea {
+                                  anchors.fill: parent
+                                  cursorShape: Qt.PointingHandCursor
+                                  onClicked: {
+                                    root.wifiPasswordSSID = ""
+                                    wifiPassInput.text = ""
+                                  }
+                              }
+                              }
+                          }
+                      }
                 }
 
                 RowLayout {
@@ -244,7 +269,7 @@ PanelWindow {
                         color: wifiRefreshMa.containsMouse ? Qt.rgba(1,1,1,0.1) : "transparent"
                         Text {
                             anchors.centerIn: parent
-                            text: root.wifiScanning ? "󰑓" : "󰑐"
+                            text: root.wifiScanning ? "" : "󰑐"
                             color: root.walColor8
                             font.pixelSize: 12
                             font.family: "JetBrainsMono Nerd Font"
