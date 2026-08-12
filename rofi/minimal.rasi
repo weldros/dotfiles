@@ -1,4 +1,5 @@
-@import "/home/piyush/.cache/wal/colors-rofi-dark.rasi"
+@import "~/.cache/wal/colors-rofi-dark.rasi"
+@import "~/.cache/wal/rofi-alpha.rasi"
 
 configuration {
   font: "monospace 8";
@@ -13,6 +14,11 @@ configuration {
 }
 
 * {
+    //background-color: transparent;
+    //text-color: @foreground;
+    transparency: "real";
+    background-color: @alpha-background;
+
     selected-active-background: #42445A00;
     selected-active-foreground: #42445A00;
     selected-normal-background: #42445A00;
@@ -21,8 +27,14 @@ configuration {
     selected-urgent-foreground: #42445A00;
 }
 
+mainbox, listview, inputbar, prompt, entry, element, element-text, element-icon, element normal.normal, element alternate.normal {
+    background-color: transparent;
+}
+
 window { 
-    width: 10%;
+    width: 20%;
+    transparency: "real";
+    background-color: @alpha-background;
 }
 
 mainbox {
@@ -31,7 +43,7 @@ mainbox {
 }
 
 inputbar {
-  padding: 0 0 0 0;
+  //padding: 0 0 0 0;
   children: [prompt, entry];
 }
 
@@ -45,7 +57,7 @@ prompt {
 
 listview {
   padding: 0 0 0 0;
-  lines: 7;
+  lines: 5;
 }
 
 element {

@@ -169,4 +169,4 @@ configuration {
   }
 }
 
-@theme "/home/piyush/.config/rofi/minimal.rasi"
+@theme "~/.config/rofi/minimal.rasi"
