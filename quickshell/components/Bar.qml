@@ -208,7 +208,8 @@ PanelWindow {
          id: backlightProc
          command: ["bash", "-c", "brightnessctl -m | awk -F, '{gsub(/%/,\"\"); print $4}'"]
          stdout: SplitParser {
-             onRead: data => {
+           onRead: data => {
+             if (bar.backlightAdjusting) return;
                  bar.backlightPercent = parseInt(data.trim()) || 0
                  var icon = bar.backlightPercent > 70 ? "󰃠" : (bar.backlightPercent > 30 ? "󰃟" : "󰃞")
                  bar.backlightStr = icon + " " + bar.backlightPercent + "%"
@@ -218,7 +219,7 @@ PanelWindow {
 
     Timer {
          id: backlightDebounce
-         interval: 300
+         interval: 50
          repeat: false
          onTriggered: {
              backlightSetProc.command = ["brightnessctl", "s", bar.pendingBacklight + "%"]
@@ -266,7 +267,8 @@ PanelWindow {
         id: volumeProc
         command: ["bash", "-c", "vol=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null); muted=$(echo \"$vol\" | grep -q MUTED && echo 1 || echo 0); pct=$(echo \"$vol\" | awk '{printf \"%.0f\", $2 * 100}'); headphone=$(pw-dump | jq -r '.. | objects | select(has(\"name\") and has(\"available\")) | select(.name | test(\"headphone\"; \"i\")) | \"\\(.name): \\(.available)\"' | grep -q \"yes\" && echo 1 || echo 0); echo \"$pct|$muted|$headphone\""]
         stdout: SplitParser {
-            onRead: data => {
+          onRead: data => {
+            if (bar.volumeAdjusting) return;
                 var parts = data.trim().split("|")
                 bar.volumePercent = parseInt(parts[0]) || 0
                 bar.volumeMuted = parts[1] === "1"
@@ -293,7 +295,8 @@ PanelWindow {
 
     Timer {
         id: volumeDebounce
-        repeat: true
+        repeat: false
+        interval: 50
         onTriggered: {
             volumeSetProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", bar.pendingVolume + "%"]
             volumeSetProc.running = true
