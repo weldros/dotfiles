@@ -33,10 +33,11 @@ local codeEditor = "code"
 local quickshellWall = "quickshell ipc call wallpaper toggle"
 local quickshellApp = "quickshell ipc call launcher toggle"
 local screenLock = "hyprlock"
+local colorpick = "hyprpicker -a"
 
 -- Autostart
 hl.on("hyprland.start", function()
-  hl.exec_cmd("~/.config/hypr/scripts/widgets.sh")
+  hl.exec_cmd("conky")
   hl.exec_cmd("quickshell & awww-daemon")
 end)
 
@@ -207,6 +208,7 @@ hl.bind(
 hl.bind("ALT + TAB", hl.dsp.window.cycle_next())
 hl.bind(mainMod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd(colorpick))
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(codeEditor))
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
@@ -232,6 +234,31 @@ hl.bind("ALT + SHIFT + A", hl.dsp.window.swap({ direction = "l" }))
 hl.bind("ALT + SHIFT + S", hl.dsp.window.swap({ direction = "d" }))
 hl.bind("ALT + SHIFT + W", hl.dsp.window.swap({ direction = "u" }))
 hl.bind("ALT + SHIFT + D", hl.dsp.window.swap({ direction = "r" }))
+
+-- Window resize
+hl.bind(
+  mainMod .. " + LEFT",
+  hl.dsp.window.resize({ x = -10, y = 0, relative = true }),
+  { repeating = true }
+)
+
+hl.bind(
+  mainMod .. " + RIGHT",
+  hl.dsp.window.resize({ x = 10, y = 0, relative = true }),
+  { repeating = true }
+)
+
+hl.bind(
+  mainMod .. " + UP",
+  hl.dsp.window.resize({ x = 0, y = -10, relative = true }),
+  { repeating = true }
+)
+
+hl.bind(
+  mainMod .. " + DOWN",
+  hl.dsp.window.resize({ x = 0, y = 10, relative = true }),
+  { repeating = true }
+)
 
 -- Workspace
 for i = 1, 10 do
