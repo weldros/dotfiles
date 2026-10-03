@@ -8,4 +8,5 @@ to add:<br>
   musicPanel<br>
   hyprlock<br>
   music cava popup<br>
-  timer and stopwatch clickable in clock bar
+  timer and stopwatch clickable in clock bar<br>
+  wallpaper bar reload <br>
