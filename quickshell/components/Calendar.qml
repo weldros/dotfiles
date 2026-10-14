@@ -111,7 +111,7 @@ PanelWindow {
             year: calendar.currentYear
 
             delegate: Rectangle {
-              color: model.today ? Qt.rgba(0, 0, 0, 0.3) : "transparent"
+              color: model.today ? Qt.rgba(0, 0, 0, 1) : "transparent"
               radius: 4
 
               Text {
