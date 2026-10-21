@@ -1,24 +1,58 @@
 -- Monitor
---hl.monitor({
---	output = "",
---	mode = "preferred",
---	position = "0x0",
---	scale = "1",
---})
+local EXT = "HDMI-A-1"
+local MAIN = "eDP-1"
+local SPLIT = 5
+local LAST = 10
 
-hl.monitor({
-	output = "eDP-1",
-	mode = "1920x1080@144",
-	position = "0x0",
-	scale = "1",
-})
+local function hdmi_connected()
+	for _, m in ipairs(hl.get_monitors()) do
+		if m.name == EXT then
+			return true
+		end
+	end
+	return false
+end
 
---hl.monitor({
-----	output = "HDMI-A-1",
-----	mode = "1360x768@60",
-----	position = "1920x0",
-----	scale = "1",
---})
+local function apply_layout(dual)
+	if dual then
+		hl.monitor({ output = EXT, mode = "1920x1080@144", position = "0x0", scale = "1" })
+		hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "1920x0", scale = "1" })
+		for i = 1, SPLIT - 1 do
+			hl.workspace_rule({
+				workspace = tostring(i),
+				monitor = EXT,
+				default = (i == 1),
+				persistent = (i == 1),
+			})
+		end
+		for i = SPLIT, LAST do
+			hl.workspace_rule({
+				workspace = tostring(i),
+				monitor = MAIN,
+				default = (i == SPLIT),
+				persistent = (i == SPLIT),
+			})
+		end
+	else
+		hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "0x0", scale = "1" })
+		for i = 1, LAST do
+			hl.workspace_rule({
+				workspace = tostring(i),
+				monitor = MAIN,
+				default = (i == 1),
+				persistent = (i == 1),
+			})
+		end
+	end
+end
+
+-- Apply on Startup
+apply_layout(hdmi_connected())
+
+-- Apply on Reload/Changes
+hl.on("monitor.layout_changed", function()
+	apply_layout(hdmi_connected())
+end)
 
 -- Local variable declaration
 local terminal = "kitty"
@@ -208,6 +242,7 @@ hl.bind(
 	hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'")
 )
 
+hl.bind("ALT + SHIFT + TAB", hl.dsp.focus({ monitor = "+1" }))
 hl.bind("ALT + TAB", hl.dsp.window.cycle_next())
 hl.bind(mainMod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(terminal))
