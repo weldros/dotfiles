@@ -242,8 +242,8 @@ hl.bind(
 	hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'")
 )
 
-hl.bind("ALT + SHIFT + TAB", hl.dsp.focus({ monitor = "+1" }))
 hl.bind("ALT + TAB", hl.dsp.window.cycle_next())
+hl.bind(mainMod .. " + SHIFT + TAB", hl.dsp.focus({ monitor = "+1" }))
 hl.bind(mainMod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd(colorpick))
