@@ -274,8 +274,11 @@ ShellRoot {
     }
 
     Process {
-        id: wallpaperListProc
-        command: ["bash", "-c", "find '" + root.wallpaperPath + "' -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' -o -iname '*.png' -o -iname '*.webp' \\) ! -name '.*' 2>/dev/null | sort"]
+      id: wallpaperListProc
+      //sort by name
+      //command: ["bash", "-c", "find '" + root.wallpaperPath + "' -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' -o -iname '*.png' -o -iname '*.webp' \\) ! -name '.*' 2>/dev/null | sort"]
+      //sort by modified
+        command: ["bash", "-c", "find '" + root.wallpaperPath + "' -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' -o -iname '*.png' -o -iname '*.webp' \\) ! -name '.*' -printf '%T@ %p\\n' 2>/dev/null | sort -nr | cut -d' ' -f2-"]
         stdout: SplitParser {
             onRead: data => {
                 var path = data.trim()

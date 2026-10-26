@@ -15,8 +15,10 @@ end
 
 local function apply_layout(dual)
 	if dual then
-		hl.monitor({ output = EXT, mode = "1920x1080@144", position = "0x0", scale = "1" })
-		hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "1920x0", scale = "1" })
+		hl.monitor({ output = EXT, mode = "2560x1440@144", position = "0x0", scale = "1", vrr = 2, bitdepth = 10 })
+		hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "2560x0", scale = "1" })
+		--hl.monitor({ output = EXT, mode = "3840x2160@59.94", position = "0x0", scale = "1", vrr = 2, bitdepth = 10 })
+		--hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "3840x0", scale = "1" })
 		for i = 1, SPLIT - 1 do
 			hl.workspace_rule({
 				workspace = tostring(i),
@@ -62,10 +64,7 @@ local browser = "brave"
 local ss = "hyprshot -m output -m eDP-1 -o ~/Pictures/Screenshots"
 local ssRegion = "hyprshot -m region -o ~/Pictures/Screenshots"
 local ssClipboard = "hyprshot -m region --clipboard-only"
-local walset = "bash -lc ~/.config/hypr/scripts/walset_nsxiv"
 local codeEditor = "code"
-local quickshellWall = "quickshell ipc call wallpaper toggle"
-local quickshellApp = "quickshell ipc call launcher toggle"
 local screenLock = "hyprlock"
 local colorpick = "hyprpicker -a"
 local highlight = "slurp -b '#000000CC' -s '#00000000' -w 0 > /dev/null"
@@ -257,13 +256,10 @@ hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(ss))
 hl.bind(mainMod .. " + CTRL + S", hl.dsp.exec_cmd(ssClipboard))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(ssRegion))
-hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd(walset))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen_state({ internal = 2, client = 0, action = "toggle" }))
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen_state({ internal = 0, client = 2, action = "toggle" }))
-hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd(quickshellWall))
 hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.window.swap({ next = true }))
-hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd(quickshellApp))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(screenLock))
 hl.bind(mainMod .. " + ALT + RETURN", hl.dsp.exec_cmd("kitty"))
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("bash -lc ~/mch.sh"))
@@ -370,3 +366,7 @@ hl.window_rule({
 	float = true,
 	center = true,
 })
+
+hl.on("hyprland.start", function()
+	hl.dispatch(hl.dsp.focus({ workspace = "1" }))
+end)
