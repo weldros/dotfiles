@@ -1,4 +1,5 @@
 -- Monitor
+local RES = 2
 local EXT = "HDMI-A-1"
 local MAIN = "eDP-1"
 local SPLIT = 5
@@ -15,10 +16,25 @@ end
 
 local function apply_layout(dual)
 	if dual then
-		hl.monitor({ output = EXT, mode = "2560x1440@144", position = "0x0", scale = "1", vrr = 2, bitdepth = 10 })
-		hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "2560x0", scale = "1" })
-		--hl.monitor({ output = EXT, mode = "3840x2160@59.94", position = "0x0", scale = "1", vrr = 2, bitdepth = 10 })
-		--hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "3840x0", scale = "1" })
+		if RES == 1 then
+			hl.monitor({
+				output = EXT,
+				mode = "1920x1080@119.88",
+				position = "0x0",
+				scale = "1",
+				vrr = 2,
+				bitdepth = 10,
+			})
+			hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "1920x0", scale = "1" })
+		end
+		if RES == 2 then
+			hl.monitor({ output = EXT, mode = "2560x1440@144", position = "0x0", scale = "1", vrr = 2, bitdepth = 10 })
+			hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "2560x0", scale = "1" })
+		end
+		if RES == 3 then
+			hl.monitor({ output = EXT, mode = "3840x2160@59.94", position = "0x0", scale = "1", vrr = 2, bitdepth = 10 })
+			hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "3840x0", scale = "1" })
+		end
 		for i = 1, SPLIT - 1 do
 			hl.workspace_rule({
 				workspace = tostring(i),
@@ -124,7 +140,7 @@ hl.config({
 		shadow = {
 			enabled = true,
 			range = 2,
-			render_power = 10,
+			render_power = 4,
 			color = 0xee1a1a1a,
 		},
 
@@ -258,7 +274,6 @@ hl.bind(mainMod .. " + CTRL + S", hl.dsp.exec_cmd(ssClipboard))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(ssRegion))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen_state({ internal = 2, client = 0, action = "toggle" }))
-hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen_state({ internal = 0, client = 2, action = "toggle" }))
 hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.window.swap({ next = true }))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(screenLock))
 hl.bind(mainMod .. " + ALT + RETURN", hl.dsp.exec_cmd("kitty"))
@@ -357,14 +372,6 @@ hl.window_rule({
 
 	move = "20 monitor_h-120",
 	float = true,
-})
-
-hl.window_rule({
-	match = {
-		class = "^(Nsxiv)$",
-	},
-	float = true,
-	center = true,
 })
 
 hl.on("hyprland.start", function()
