@@ -73,6 +73,7 @@ ShellRoot {
     property var wallpaperHashes: ({})
 
     property bool wifiEnabled: true
+    property bool wifiConnected: false
     property string wifiCurrentSSID: ""
     property int wifiSignal: 0
     property var wifiNetworks: []
@@ -94,8 +95,6 @@ ShellRoot {
     property color walColor5: "#89b4fa"
     property color walColor8: "#6c7086"
     property color walColor13: "#f5c2e7"
-
-//    property int savedGifIndex: 0
 
     onWifiEnabledChanged: {
         if (!wifiEnabled) {
@@ -202,20 +201,8 @@ ShellRoot {
             loadUsageProc.running = true
             currentWallProc.running = true
             thumbDirProc.running = true
-//            loadGifIndexProc.running = true
         }
     }
-
-//    Process {
-//        id: loadGifIndexProc
-//        command: ["bash", "-c", "cat '" + root.statePath + "/gif-index' 2>/dev/null || echo '0'"]
-//        stdout: SplitParser {
-//            onRead: data => {
-//                var idx = parseInt(data.trim())
-//                root.savedGifIndex = isNaN(idx) ? 0 : idx
-//            }
-//        }
-//    }
 
     Process {
         id: saveStateProc
@@ -252,7 +239,7 @@ ShellRoot {
         root.walApplying = true
         applyWallProc.command = ["bash", "-c",
             "ln -sf '" + wallpaper.path + "' '" + root.wallpaperPath + "/current' && " +
-            "awww img '" + wallpaper.path + "' --transition-type any --transition-duration 2 --transition-fps 80 --transition-step 60 & " +
+            "awww img '" + wallpaper.path + "' --transition-type any --transition-duration 2 --transition-fps 144 --transition-step 60 & " +
             "wal -i '" + wallpaper.path + "' -n -q && " +
             "python ~/.config/scripts/conkycolorspython.py && " +
             "sleep 0.3"
@@ -277,6 +264,7 @@ ShellRoot {
       id: wallpaperListProc
       //sort by name
       //command: ["bash", "-c", "find '" + root.wallpaperPath + "' -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' -o -iname '*.png' -o -iname '*.webp' \\) ! -name '.*' 2>/dev/null | sort"]
+
       //sort by modified
         command: ["bash", "-c", "find '" + root.wallpaperPath + "' -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' -o -iname '*.png' -o -iname '*.webp' \\) ! -name '.*' -printf '%T@ %p\\n' 2>/dev/null | sort -nr | cut -d' ' -f2-"]
         stdout: SplitParser {
@@ -464,9 +452,11 @@ ShellRoot {
                     root.wifiCurrentSSID = parts[1].replace(/\u001b\[[0-9;]*[mGK]/g, "").replace(/^\s*>\s*/, "").trim()
                     var rssi = parseInt(parts[2]) || -100
                     root.wifiSignal = Math.min(100, Math.max(0, 2 * (rssi + 100)))
+                    root.wifiConnected = true
                 } else {
                     root.wifiCurrentSSID = ""
                     root.wifiSignal = 0
+                    root.wifiConnected = false
                 }
             }
         }
@@ -529,35 +519,35 @@ ShellRoot {
         interval: 1000
         repeat: false
         onTriggered: refreshWifi()
-      }
+    }
 
     Process {
-    id: wifiOpenConnectProc
-    property string ssid: ""
-    property bool connectionCompletion: false
-    property string _outputBuffer: ""
-    command: {
-        return ["bash", "-c", "iwctl station wlan0 connect '" + ssid + "' 2>&1"]
-    }
+      id: wifiOpenConnectProc
+      property string ssid: ""
+      property bool connectionCompletion: false
+      property string _outputBuffer: ""
+      command: {
+          return ["bash", "-c", "iwctl station wlan0 connect '" + ssid + "' 2>&1"]
+      }
 
-    stdout: SplitParser {
-        splitMarker: ""
-        onRead: data => {
-            wifiOpenConnectProc._outputBuffer += data
-        }
+      stdout: SplitParser {
+          splitMarker: ""
+          onRead: data => {
+              wifiOpenConnectProc._outputBuffer += data
+          }
+      }
+      onExited: {
+          root.wifiConnecting = false
+          root.wifiPasswordSSID = ""
+          if (wifiOpenConnectProc._outputBuffer.includes("Operation failed") || exitCode !== 0) {
+              connectionCompletion = false
+          }
+          else {
+              connectionCompletion = true
+          }
+          if (!wifiCurrentProc.running) wifiCurrentProc.running = true
+      }
     }
-    onExited: {
-        root.wifiConnecting = false
-        root.wifiPasswordSSID = ""
-        if (wifiOpenConnectProc._outputBuffer.includes("Operation failed") || exitCode !== 0) {
-            connectionCompletion = false
-        }
-        else {
-            connectionCompletion = true
-        }
-        if (!wifiCurrentProc.running) wifiCurrentProc.running = true
-    }
-}
 
     Process {
         id: wifiConnectProc
@@ -566,11 +556,19 @@ ShellRoot {
         property bool connectionCompletion: false
         property string _outputBuffer: ""
         command: {
+          if (!root.wifiConnected) {
             if (password !== "")
                 return ["bash", "-c", "iwctl station wlan0 connect '" + ssid + "' --passphrase '" + password + "' 2>&1"]
             else
                 return ["bash", "-c", "iwctl station wlan0 connect '" + ssid + "' 2>&1"]
-              }
+          }
+          else {
+            if (password !== "")
+                return ["bash", "-c", + "iwctl station wlan0 disconnect &&" + "iwctl station wlan0 connect '" + ssid + "' --passphrase '" + password + "' 2>&1"]
+            else
+                return ["bash", "-c", + "iwctl station wlan0 disconnect &&" + "iwctl station wlan0 connect '" + ssid + "' 2>&1"]
+          }
+        }
 
         stdout: SplitParser {
           splitMarker: ""
