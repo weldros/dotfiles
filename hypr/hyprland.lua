@@ -258,7 +258,8 @@ hl.bind(
 )
 
 hl.bind("ALT + TAB", hl.dsp.window.cycle_next())
-hl.bind(mainMod .. " + SHIFT + TAB", hl.dsp.focus({ monitor = "+1" }))
+hl.bind("ALT + RIGHT", hl.dsp.focus({ monitor = MAIN }))
+hl.bind("ALT + LEFT", hl.dsp.focus({ monitor = EXT }))
 hl.bind(mainMod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd(colorpick))
@@ -267,7 +268,6 @@ hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + O", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(ss))
 hl.bind(mainMod .. " + CTRL + S", hl.dsp.exec_cmd(ssClipboard))
@@ -276,14 +276,13 @@ hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen_state({ internal = 2, client = 0, action = "toggle" }))
 hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.window.swap({ next = true }))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(screenLock))
-hl.bind(mainMod .. " + ALT + RETURN", hl.dsp.exec_cmd("kitty"))
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("bash -lc ~/mch.sh"))
 hl.bind(mainMod .. " + SHIFT + mouse:272", hl.dsp.exec_cmd(highlight))
 
-hl.bind("ALT + SHIFT + A", hl.dsp.window.swap({ direction = "l" }))
-hl.bind("ALT + SHIFT + S", hl.dsp.window.swap({ direction = "d" }))
-hl.bind("ALT + SHIFT + W", hl.dsp.window.swap({ direction = "u" }))
-hl.bind("ALT + SHIFT + D", hl.dsp.window.swap({ direction = "r" }))
+hl.bind("ALT + A", hl.dsp.window.swap({ direction = "l" }))
+hl.bind("ALT + S", hl.dsp.window.swap({ direction = "d" }))
+hl.bind("ALT + W", hl.dsp.window.swap({ direction = "u" }))
+hl.bind("ALT + D", hl.dsp.window.swap({ direction = "r" }))
 
 -- Window resize
 hl.bind(mainMod .. " + LEFT", hl.dsp.window.resize({ x = -30, y = 0, relative = true }), { repeating = true })
@@ -373,6 +372,8 @@ hl.window_rule({
 	move = "20 monitor_h-120",
 	float = true,
 })
+
+hl.window_rule({ match = { content = "game", fullscreen = true }, confine_pointer = true })
 
 hl.on("hyprland.start", function()
 	hl.dispatch(hl.dsp.focus({ workspace = "1" }))
