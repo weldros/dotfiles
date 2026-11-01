@@ -258,8 +258,10 @@ hl.bind(
 )
 
 hl.bind("ALT + TAB", hl.dsp.window.cycle_next())
-hl.bind("ALT + RIGHT", hl.dsp.focus({ monitor = MAIN }))
-hl.bind("ALT + LEFT", hl.dsp.focus({ monitor = EXT }))
+hl.bind(mainMod .. " + SHIFT + RIGHT", hl.dsp.focus({ monitor = MAIN }))
+hl.bind(mainMod .. " + SHIFT + LEFT", hl.dsp.focus({ monitor = EXT }))
+hl.bind(mainMod .. " + RIGHT", hl.dsp.focus({ workspace = "e+1" }))
+hl.bind(mainMod .. " + LEFT", hl.dsp.focus({ workspace = "e-1" }))
 hl.bind(mainMod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd(colorpick))
@@ -274,7 +276,6 @@ hl.bind(mainMod .. " + CTRL + S", hl.dsp.exec_cmd(ssClipboard))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(ssRegion))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen_state({ internal = 2, client = 0, action = "toggle" }))
-hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.window.swap({ next = true }))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(screenLock))
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("bash -lc ~/mch.sh"))
 hl.bind(mainMod .. " + SHIFT + mouse:272", hl.dsp.exec_cmd(highlight))
@@ -285,10 +286,10 @@ hl.bind("ALT + W", hl.dsp.window.swap({ direction = "u" }))
 hl.bind("ALT + D", hl.dsp.window.swap({ direction = "r" }))
 
 -- Window resize
-hl.bind(mainMod .. " + LEFT", hl.dsp.window.resize({ x = -30, y = 0, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + RIGHT", hl.dsp.window.resize({ x = 30, y = 0, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + UP", hl.dsp.window.resize({ x = 0, y = -30, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + DOWN", hl.dsp.window.resize({ x = 0, y = 30, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + LEFT", hl.dsp.window.resize({ x = -30, y = 0, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + RIGHT", hl.dsp.window.resize({ x = 30, y = 0, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + UP", hl.dsp.window.resize({ x = 0, y = -30, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + DOWN", hl.dsp.window.resize({ x = 0, y = 30, relative = true }), { repeating = true })
 
 -- Workspace
 for i = 1, 10 do
