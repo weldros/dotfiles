@@ -690,14 +690,18 @@ ShellRoot {
         interval: 1500
         repeat: false
         onTriggered: refreshBluetooth()
-    }
+      }
 
-Bar {}
-Dashboard {}
-WifiPanel {}
-LauncherPanel {}
-Synth {}
-Calendar {}
+    Variants {
+        model: Quickshell.screens
+        Bar {}
+      }
+
+    Dashboard {}
+    WifiPanel {}
+    LauncherPanel {}
+    Synth {}
+    Calendar {}
 
     IpcHandler {
         target: "launcher"

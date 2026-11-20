@@ -17,22 +17,15 @@ end
 local function apply_layout(dual)
 	if dual then
 		if RES == 1 then
-			hl.monitor({
-				output = EXT,
-				mode = "1920x1080@119.88",
-				position = "0x0",
-				scale = "1",
-				vrr = 2,
-				bitdepth = 10,
-			})
+			hl.monitor({ output = EXT, mode = "1920x1080@119.88", position = "0x0", scale = "1", vrr = 2 })
 			hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "1920x0", scale = "1" })
 		end
 		if RES == 2 then
-			hl.monitor({ output = EXT, mode = "2560x1440@144", position = "0x0", scale = "1", vrr = 2, bitdepth = 10 })
+			hl.monitor({ output = EXT, mode = "2560x1440@144", position = "0x0", scale = "1", vrr = 2 })
 			hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "2560x0", scale = "1" })
 		end
 		if RES == 3 then
-			hl.monitor({ output = EXT, mode = "3840x2160@59.94", position = "0x0", scale = "1", vrr = 2, bitdepth = 10 })
+			hl.monitor({ output = EXT, mode = "3840x2160@59.94", position = "0x0", scale = "1", vrr = 2 })
 			hl.monitor({ output = MAIN, mode = "1920x1080@144", position = "3840x0", scale = "1" })
 		end
 		for i = 1, SPLIT - 1 do
@@ -280,10 +273,10 @@ hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(screenLock))
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("bash -lc ~/mch.sh"))
 hl.bind(mainMod .. " + SHIFT + mouse:272", hl.dsp.exec_cmd(highlight))
 
-hl.bind("ALT + A", hl.dsp.window.swap({ direction = "l" }))
-hl.bind("ALT + S", hl.dsp.window.swap({ direction = "d" }))
-hl.bind("ALT + W", hl.dsp.window.swap({ direction = "u" }))
-hl.bind("ALT + D", hl.dsp.window.swap({ direction = "r" }))
+hl.bind(mainMod .. " + ALT + LEFT", hl.dsp.window.swap({ direction = "l" }))
+hl.bind(mainMod .. " + ALT + RIGHT", hl.dsp.window.swap({ direction = "r" }))
+hl.bind(mainMod .. " + ALT + UP", hl.dsp.window.swap({ direction = "u" }))
+hl.bind(mainMod .. " + ALT + DOWN", hl.dsp.window.swap({ direction = "d" }))
 
 -- Window resize
 hl.bind(mainMod .. " + CTRL + LEFT", hl.dsp.window.resize({ x = -30, y = 0, relative = true }), { repeating = true })
@@ -379,3 +372,10 @@ hl.window_rule({ match = { content = "game", fullscreen = true }, confine_pointe
 hl.on("hyprland.start", function()
 	hl.dispatch(hl.dsp.focus({ workspace = "1" }))
 end)
+
+-- Brave FullScreen gray fix
+hl.config({
+	render = {
+		cm_auto_hdr = 0,
+	},
+})

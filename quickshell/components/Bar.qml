@@ -1,36 +1,28 @@
-import Quickshell
-import Quickshell.Io
-import Quickshell.Wayland
-import Quickshell.Hyprland
+import Qt5Compat.GraphicalEffects
 import QtQuick
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
+import Quickshell
+import Quickshell.Hyprland
+import Quickshell.Io
+import Quickshell.Wayland
 
 PanelWindow {
-    id: bar
-    visible: true
-    exclusionMode: ExclusionMode.Auto
-    WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.namespace: "quickshell"
-    anchors { top: true; left: true; right: true }
-    margins { top: 0; left: 0; right: 0; bottom: -5 }
-    implicitHeight: 28
-    color: "transparent"
+  id: bar
+    required property var modelData
+    screen: modelData
 
     //general
-    property color notchColor: Qt.rgba(0, 0, 0, 0.40)
+    property color notchColor: Qt.rgba(0, 0, 0, 0.4)
     property color notchHoverColor: Qt.rgba(0, 0, 0, 0.6)
     property int notchRadius: 4
     property int notchHeight: 28
     property int activeWsId: 1
     property int targetWsId: 1
-
     //media
     property string mediaText: ""
     property string mediaClass: "stopped"
     property real mediaPosition: 0
     property real mediaLength: 0
-
     //volume
     property string volumeStr: "󰕾 0%"
     property int volumePercent: 50
@@ -38,72 +30,146 @@ PanelWindow {
     property bool volumeAdjusting: false
     property real pendingVolume: 0
     property bool headphoneCheck: false
-
     //wifi
     property bool wifiConnected: false
     property string wifiSSID: ""
     property int wifiStrength: 0
-
     //bluetooth
     property bool btConnected: false
-
     //battery
     property int batteryPercent: 0
     property bool batteryCharging: false
     property string batteryClass: ""
     property string batteryTime: ""
     property var cavaValues: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    property real chargingPulse: 1.0
-    property real chargingFillAnim: 0.0
+    property real chargingPulse: 1
+    property real chargingFillAnim: 0
     property bool notifiedWarning: false
     property bool notifiedCritical: false
-
     //backlight
     property int backlightPercent: 100
     property string backlightStr: "󰃠 100%"
     property bool backlightAdjusting: false
     property real pendingBacklight: 0
 
+    function adjustBacklight(delta) {
+        bar.backlightAdjusting = true;
+        bar.pendingBacklight = Math.max(1, Math.min(100, bar.backlightPercent + delta));
+        bar.backlightPercent = bar.pendingBacklight;
+        var icon = bar.backlightPercent > 70 ? "󰃠" : (bar.backlightPercent > 30 ? "󰃟" : "󰃞");
+        bar.backlightStr = icon + " " + bar.backlightPercent + "%";
+        backlightDebounce.restart();
+    }
+
+    function adjustVolume(delta) {
+        bar.volumeAdjusting = true;
+        bar.pendingVolume = Math.max(0, Math.min(100, bar.volumePercent + delta));
+        bar.volumePercent = bar.pendingVolume;
+        var icon = bar.volumePercent > 50 ? "󰕾" : (bar.volumePercent > 0 ? "󰖀" : "󰕿");
+        bar.volumeStr = icon + " " + bar.volumePercent + "%";
+        volumeDebounce.restart();
+    }
+
+    visible: true
+    exclusionMode: ExclusionMode.Auto
+    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.namespace: "quickshell"
+    implicitHeight: 28
+    color: "transparent"
+    Component.onCompleted: {
+        if (Hyprland.focusedMonitor && Hyprland.focusedMonitor.activeWorkspace) {
+            bar.activeWsId = Hyprland.focusedMonitor.activeWorkspace.id;
+            bar.targetWsId = bar.activeWsId;
+        }
+    }
+
+    anchors {
+        top: true
+        left: true
+        right: true
+    }
+
+    margins {
+        top: 0
+        left: 0
+        right: 0
+        bottom: -5
+    }
+
     SequentialAnimation {
         id: chargingPulseAnim
+
         running: bar.batteryCharging
         loops: Animation.Infinite
-        NumberAnimation { target: bar; property: "chargingPulse"; to: 0.3; duration: 800; easing.type: Easing.InOutSine }
-        NumberAnimation { target: bar; property: "chargingPulse"; to: 1; duration: 800; easing.type: Easing.InOutSine }
+
+        NumberAnimation {
+            target: bar
+            property: "chargingPulse"
+            to: 0.3
+            duration: 800
+            easing.type: Easing.InOutSine
+        }
+
+        NumberAnimation {
+            target: bar
+            property: "chargingPulse"
+            to: 1
+            duration: 800
+            easing.type: Easing.InOutSine
+        }
+
     }
 
     SequentialAnimation {
         id: chargingFillAnimSeq
+
         running: bar.batteryCharging
         loops: Animation.Infinite
-        NumberAnimation { target: bar; property: "chargingFillAnim"; to: 1; duration: 2000; easing.type: Easing.InOutSine }
-        NumberAnimation { target: bar; property: "chargingFillAnim"; to: 0; duration: 2000; easing.type: Easing.InOutSine }
+
+        NumberAnimation {
+            target: bar
+            property: "chargingFillAnim"
+            to: 1
+            duration: 2000
+            easing.type: Easing.InOutSine
+        }
+
+        NumberAnimation {
+            target: bar
+            property: "chargingFillAnim"
+            to: 0
+            duration: 2000
+            easing.type: Easing.InOutSine
+        }
+
     }
 
     Connections {
-        target: Hyprland
         function onRawEvent(event) {
             if (event.name === "workspace") {
-                var wsId = parseInt(event.data.trim())
+                var wsId = parseInt(event.data.trim());
                 if (!isNaN(wsId)) {
-                    bar.targetWsId = wsId
-                    wsTransition.restart()
+                    bar.targetWsId = wsId;
+                    wsTransition.restart();
                 }
             } else if (event.name === "focusedmon") {
-                var parts = event.data.split(",")
+                var parts = event.data.split(",");
                 if (parts.length >= 2) {
-                    var wsId = parseInt(parts[1])
+                    var wsId = parseInt(parts[1]);
                     if (!isNaN(wsId)) {
-                        bar.targetWsId = wsId
-                        wsTransition.restart()
+                        bar.targetWsId = wsId;
+                        wsTransition.restart();
                     }
                 }
             }
         }
+
+        target: Hyprland
     }
 
     SequentialAnimation {
         id: wsTransition
+
         PropertyAnimation {
             target: wsHighlight
             property: "highlightOpacity"
@@ -111,9 +177,11 @@ PanelWindow {
             duration: 50
             easing.type: Easing.OutQuad
         }
+
         ScriptAction {
             script: bar.activeWsId = bar.targetWsId
         }
+
         ParallelAnimation {
             PropertyAnimation {
                 target: wsHighlight
@@ -122,23 +190,19 @@ PanelWindow {
                 duration: 300
                 easing.type: Easing.OutCubic
             }
+
             PropertyAnimation {
                 target: wsHighlight
                 property: "highlightScale"
                 from: 0.9
-                to: 1.0
+                to: 1
                 duration: 300
                 easing.type: Easing.OutBack
                 easing.overshoot: 1.5
             }
-        }
-    }
 
-    Component.onCompleted: {
-        if (Hyprland.focusedMonitor && Hyprland.focusedMonitor.activeWorkspace) {
-            bar.activeWsId = Hyprland.focusedMonitor.activeWorkspace.id
-            bar.targetWsId = bar.activeWsId
         }
+
     }
 
     Timer {
@@ -146,25 +210,32 @@ PanelWindow {
         running: true
         repeat: true
         triggeredOnStart: true
-        onTriggered: { if (!mediaProc.running) mediaProc.running = true }
+        onTriggered: {
+            if (!mediaProc.running)
+                mediaProc.running = true;
+
+        }
     }
 
     Process {
         id: cavaProc
+
         running: bar.mediaClass === "playing"
         command: ["cava", "-p", Quickshell.env("HOME") + "/.config/cava/config_raw"]
+
         stdout: SplitParser {
-            onRead: data => {
-                var parts = data.trim().split(";")
-                var vals = []
+            onRead: (data) => {
+                var parts = data.trim().split(";");
+                var vals = [];
                 for (var i = 0; i < 12 && i < parts.length; i++) {
-                  var parsed = parseInt(parts[i])
-                  vals.push(isNaN(parsed) ? 0.1 : (parsed / 255))
+                    var parsed = parseInt(parts[i]);
+                    vals.push(isNaN(parsed) ? 0.1 : (parsed / 255));
                 }
-                while (vals.length < 12) vals.push(0.1)
-                bar.cavaValues = vals
+                while (vals.length < 12)vals.push(0.1)
+                bar.cavaValues = vals;
             }
         }
+
     }
 
     Timer {
@@ -172,86 +243,93 @@ PanelWindow {
         running: bar.mediaClass !== "playing"
         repeat: true
         onTriggered: {
-            var newVals = []
+            var newVals = [];
             for (var i = 0; i < 12; i++) {
-                newVals.push(bar.cavaValues[i] * 0.85)
+                newVals.push(bar.cavaValues[i] * 0.85);
             }
-            bar.cavaValues = newVals
+            bar.cavaValues = newVals;
         }
     }
 
     Process {
         id: mediaProc
+
         command: ["bash", "-c", "status=$(playerctl --player=%any status 2>/dev/null); pos=$(playerctl --player=%any position 2>/dev/null | cut -d. -f1); len=$(playerctl --player=%any metadata mpris:length 2>/dev/null); len=$((len / 1000000)); if [ \"$status\" = \"Playing\" ] || [ \"$status\" = \"Paused\" ]; then artist=$(playerctl --player=%any metadata artist 2>/dev/null); title=$(playerctl --player=%any metadata title 2>/dev/null); if [ -n \"$title\" ]; then text=\"$title\"; [ -n \"$artist\" ] && text=\"$artist - $title\"; if [ ${#text} -gt 35 ]; then text=\"${text:0:32}...\"; fi; echo \"$status|$text|$pos|$len\"; else echo 'stopped||0|0'; fi; else echo 'stopped||0|0'; fi"]
+
         stdout: SplitParser {
-            onRead: data => {
-                var parts = data.trim().split("|")
+            onRead: (data) => {
+                var parts = data.trim().split("|");
                 if (parts.length >= 4) {
-                    bar.mediaClass = parts[0].toLowerCase()
-                    bar.mediaText = parts[1]
-                    bar.mediaPosition = parseInt(parts[2]) || 0
-                    bar.mediaLength = parseInt(parts[3]) || 0
+                    bar.mediaClass = parts[0].toLowerCase();
+                    bar.mediaText = parts[1];
+                    bar.mediaPosition = parseInt(parts[2]) || 0;
+                    bar.mediaLength = parseInt(parts[3]) || 0;
                 }
             }
         }
+
     }
 
     Timer {
-         interval: 300
-         running: true
-         repeat: true
-         triggeredOnStart: true
-         onTriggered: { if (!backlightProc.running) backlightProc.running = true }
-      }
+        interval: 300
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            if (!backlightProc.running)
+                backlightProc.running = true;
+
+        }
+    }
 
     Process {
-         id: backlightProc
-         command: ["bash", "-c", "brightnessctl -m | awk -F, '{gsub(/%/,\"\"); print $4}'"]
-         stdout: SplitParser {
-           onRead: data => {
-             if (bar.backlightAdjusting) return;
-                 bar.backlightPercent = parseInt(data.trim()) || 0
-                 var icon = bar.backlightPercent > 70 ? "󰃠" : (bar.backlightPercent > 30 ? "󰃟" : "󰃞")
-                 bar.backlightStr = icon + " " + bar.backlightPercent + "%"
-             }
-         }
-     }
+        id: backlightProc
+
+        command: ["bash", "-c", "brightnessctl -m | awk -F, '{gsub(/%/,\"\"); print $4}'"]
+
+        stdout: SplitParser {
+            onRead: (data) => {
+                if (bar.backlightAdjusting)
+                    return ;
+
+                bar.backlightPercent = parseInt(data.trim()) || 0;
+                var icon = bar.backlightPercent > 70 ? "󰃠" : (bar.backlightPercent > 30 ? "󰃟" : "󰃞");
+                bar.backlightStr = icon + " " + bar.backlightPercent + "%";
+            }
+        }
+
+    }
 
     Timer {
-         id: backlightDebounce
-         interval: 50
-         repeat: false
-         onTriggered: {
-             backlightSetProc.command = ["brightnessctl", "s", bar.pendingBacklight + "%"]
-             backlightSetProc.running = true
-         }
-      }
+        id: backlightDebounce
+
+        interval: 50
+        repeat: false
+        onTriggered: {
+            backlightSetProc.command = ["brightnessctl", "s", bar.pendingBacklight + "%"];
+            backlightSetProc.running = true;
+        }
+    }
 
     Process {
-         id: backlightSetProc
-         onExited: {
-             bar.backlightAdjusting = false
-             if (!backlightProc.running) backlightProc.running = true
-         }
-      }
+        id: backlightSetProc
 
-    function adjustBacklight(delta) {
-         bar.backlightAdjusting = true
-         bar.pendingBacklight = Math.max(1, Math.min(100, bar.backlightPercent + delta))
-         bar.backlightPercent = bar.pendingBacklight
-         var icon = bar.backlightPercent > 70 ? "󰃠" : (bar.backlightPercent > 30 ? "󰃟" : "󰃞")
-         bar.backlightStr = icon + " " + bar.backlightPercent + "%"
-         backlightDebounce.restart()
-      }
+        onExited: {
+            bar.backlightAdjusting = false;
+            if (!backlightProc.running)
+                backlightProc.running = true;
+
+        }
+    }
 
     Timer {
         interval: 1000
         running: bar.mediaClass === "playing"
         repeat: true
         onTriggered: {
-            if (bar.mediaPosition < bar.mediaLength) {
-                bar.mediaPosition += 1
-            }
+            if (bar.mediaPosition < bar.mediaLength)
+                bar.mediaPosition += 1;
+
         }
     }
 
@@ -260,64 +338,67 @@ PanelWindow {
         running: true
         repeat: true
         triggeredOnStart: true
-        onTriggered: { if (!volumeProc.running) volumeProc.running = true }
+        onTriggered: {
+            if (!volumeProc.running)
+                volumeProc.running = true;
+
+        }
     }
 
     Process {
         id: volumeProc
+
         command: ["bash", "-c", "vol=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null); muted=$(echo \"$vol\" | grep -q MUTED && echo 1 || echo 0); pct=$(echo \"$vol\" | awk '{printf \"%.0f\", $2 * 100}'); headphone=$(pw-dump | jq -r '.. | objects | select(has(\"name\") and has(\"available\")) | select(.name | test(\"headphone\"; \"i\")) | \"\\(.name): \\(.available)\"' | grep -q \"yes\" && echo 1 || echo 0); echo \"$pct|$muted|$headphone\""]
+
         stdout: SplitParser {
-          onRead: data => {
-            if (bar.volumeAdjusting) return;
-                var parts = data.trim().split("|")
-                bar.volumePercent = parseInt(parts[0]) || 0
-                bar.volumeMuted = parts[1] === "1"
-                bar.headphoneCheck = parts[2] === "1"
+            onRead: (data) => {
+                if (bar.volumeAdjusting)
+                    return ;
+
+                var parts = data.trim().split("|");
+                bar.volumePercent = parseInt(parts[0]) || 0;
+                bar.volumeMuted = parts[1] === "1";
+                bar.headphoneCheck = parts[2] === "1";
                 if (bar.headphoneCheck) {
-                  if (bar.volumeMuted) {
-                      bar.volumeStr = "󰟎 mute"
-                  } else {
-                      var icon = bar.volumePercent > 50 ? "󰋋" : (bar.volumePercent > 0 ? "󰋋" : "󰋋")
-                      bar.volumeStr = icon + " " + bar.volumePercent + "%"
-                  }
-                }
-                else {
-                  if (bar.volumeMuted) {
-                      bar.volumeStr = "󰝟 mute"
-                  } else {
-                      var icon = bar.volumePercent > 50 ? "󰕾" : (bar.volumePercent > 0 ? "󰖀" : "󰕿")
-                     bar.volumeStr = icon + " " + bar.volumePercent + "%"
-                  }
+                    if (bar.volumeMuted) {
+                        bar.volumeStr = "󰟎 mute";
+                    } else {
+                        var icon = bar.volumePercent > 50 ? "󰋋" : (bar.volumePercent > 0 ? "󰋋" : "󰋋");
+                        bar.volumeStr = icon + " " + bar.volumePercent + "%";
+                    }
+                } else {
+                    if (bar.volumeMuted) {
+                        bar.volumeStr = "󰝟 mute";
+                    } else {
+                        var icon = bar.volumePercent > 50 ? "󰕾" : (bar.volumePercent > 0 ? "󰖀" : "󰕿");
+                        bar.volumeStr = icon + " " + bar.volumePercent + "%";
+                    }
                 }
             }
         }
+
     }
 
     Timer {
         id: volumeDebounce
+
         repeat: false
         interval: 50
         onTriggered: {
-            volumeSetProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", bar.pendingVolume + "%"]
-            volumeSetProc.running = true
+            volumeSetProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", bar.pendingVolume + "%"];
+            volumeSetProc.running = true;
         }
     }
 
     Process {
         id: volumeSetProc
-        onExited: {
-            bar.volumeAdjusting = false
-            if (!volumeProc.running) volumeProc.running = true
-        }
-    }
 
-    function adjustVolume(delta) {
-        bar.volumeAdjusting = true
-        bar.pendingVolume = Math.max(0, Math.min(100, bar.volumePercent + delta))
-        bar.volumePercent = bar.pendingVolume
-        var icon = bar.volumePercent > 50 ? "󰕾" : (bar.volumePercent > 0 ? "󰖀" : "󰕿")
-        bar.volumeStr = icon + " " + bar.volumePercent + "%"
-        volumeDebounce.restart()
+        onExited: {
+            bar.volumeAdjusting = false;
+            if (!volumeProc.running)
+                volumeProc.running = true;
+
+        }
     }
 
     Timer {
@@ -325,25 +406,32 @@ PanelWindow {
         running: true
         repeat: true
         triggeredOnStart: true
-        onTriggered: { if (!networkProc.running) networkProc.running = true }
+        onTriggered: {
+            if (!networkProc.running)
+                networkProc.running = true;
+
+        }
     }
 
     Process {
         id: networkProc
+
         command: ["bash", "-c", "wifi=$(iwctl station wlan0 show | awk '/Connected network/ {sub(/^[ \t]*Connected network[ \t]*/, \"\"); sub(/[ \t]+$/, \"\"); ssid=$0} /RSSI/ {rssi=$(NF-1)} END {if (ssid!=\"\") {p=2*(rssi+100); if (p>100) p=100; if (p<0) p=0; print \"1|\"ssid\"|\"p} else print \"0||0\"}'); echo \"${wifi:-0||0}\"; bt='0'; devices=$(echo -e 'devices\\nquit' | bluetoothctl 2>/dev/null | grep '^Device' | awk '{print $2}'); for mac in $devices; do if echo -e \"info $mac\\nquit\" | bluetoothctl 2>/dev/null | grep -q 'Connected: yes'; then bt='1'; break; fi; done; echo \"bt:$bt\""]
+
         stdout: SplitParser {
-            onRead: data => {
-                var line = data.trim()
+            onRead: (data) => {
+                var line = data.trim();
                 if (line.startsWith("bt:")) {
-                    bar.btConnected = line.endsWith("1")
+                    bar.btConnected = line.endsWith("1");
                 } else {
-                    var parts = line.split("|")
-                    bar.wifiConnected = parts[0] === "1"
-                    bar.wifiSSID = parts.length > 1 ? parts[1] : ""
-                    bar.wifiStrength = parts.length > 2 ? parseInt(parts[2]) : 0
+                    var parts = line.split("|");
+                    bar.wifiConnected = parts[0] === "1";
+                    bar.wifiSSID = parts.length > 1 ? parts[1] : "";
+                    bar.wifiStrength = parts.length > 2 ? parseInt(parts[2]) : 0;
                 }
             }
         }
+
     }
 
     Timer {
@@ -351,120 +439,81 @@ PanelWindow {
         running: true
         repeat: true
         triggeredOnStart: true
-        onTriggered: { if (!batteryProc.running) batteryProc.running = true }
+        onTriggered: {
+            if (!batteryProc.running)
+                batteryProc.running = true;
+
+        }
     }
 
     Process {
         id: batteryProc
+
         command: ["bash", "-c", "cap=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1); status=$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -1); time=''; if command -v upower >/dev/null 2>&1; then if [ \"$status\" = \"Discharging\" ]; then time=$(upower -i $(upower -e | grep BAT) 2>/dev/null | grep 'time to empty' | awk '{print $4 $5}'); elif [ \"$status\" = \"Charging\" ]; then time=$(upower -i $(upower -e | grep BAT) 2>/dev/null | grep 'time to full' | awk '{print $4 $5}'); fi; fi; [ -z \"$cap\" ] && cap=0; echo \"$cap|$status|$time\""]
+
         stdout: SplitParser {
-            onRead: data => {
-                var parts = data.trim().split("|")
-                bar.batteryPercent = parseInt(parts[0]) || 0
-                var status = parts.length > 1 ? parts[1] : ""
-                bar.batteryCharging = status === "Charging"
-                bar.batteryTime = parts.length > 2 ? parts[2] : ""
-                if (bar.batteryCharging) bar.batteryClass = "charging"
-                else if (bar.batteryPercent <= 10) bar.batteryClass = "critical"
-                else if (bar.batteryPercent <= 25) {
-                  bar.batteryClass = "warning"
-                  bar.notifiedWarning = true
+            onRead: (data) => {
+                var parts = data.trim().split("|");
+                bar.batteryPercent = parseInt(parts[0]) || 0;
+                var status = parts.length > 1 ? parts[1] : "";
+                bar.batteryCharging = status === "Charging";
+                bar.batteryTime = parts.length > 2 ? parts[2] : "";
+                if (bar.batteryCharging) {
+                    bar.batteryClass = "charging";
+                } else if (bar.batteryPercent <= 10) {
+                    bar.batteryClass = "critical";
+                } else if (bar.batteryPercent <= 25) {
+                    bar.batteryClass = "warning";
+                    bar.notifiedWarning = true;
+                } else {
+                    bar.batteryClass = "";
                 }
-                else bar.batteryClass = ""
             }
         }
-      }
+
+    }
 
     Process {
         id: volumeToggleProc
+
         command: ["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]
-        onExited: { if (!volumeProc.running) volumeProc.running = true }
+        onExited: {
+            if (!volumeProc.running)
+                volumeProc.running = true;
+
+        }
     }
 
     Process {
         id: mediaPlayPauseProc
+
         command: ["playerctl", "play-pause"]
-        onExited: { if (!mediaProc.running) mediaProc.running = true }
+        onExited: {
+            if (!mediaProc.running)
+                mediaProc.running = true;
+
+        }
     }
 
     Process {
         id: mediaNextProc
+
         command: ["playerctl", "next"]
-        onExited: { if (!mediaProc.running) mediaProc.running = true }
+        onExited: {
+            if (!mediaProc.running)
+                mediaProc.running = true;
+
+        }
     }
 
     Process {
         id: mediaPrevProc
+
         command: ["playerctl", "previous"]
-        onExited: { if (!mediaProc.running) mediaProc.running = true }
-    }
+        onExited: {
+            if (!mediaProc.running)
+                mediaProc.running = true;
 
-    component Notch: Item {
-        id: notchRoot
-        property bool hovered: false
-        property string tooltip: ""
-        default property alias content: contentItem.data
-        layer.enabled: true
-        layer.effect: DropShadow {
-          horizontalOffset: 1
-          verticalOffset: 1
-          radius: 3
-          samples: 10
-          spread: 0.4
-          color: Qt.rgba(0, 0, 0, 0.25)
-          transparentBorder: true
-        }
-        height: bar.notchHeight
-
-        Item {
-            anchors.fill: parent
-            anchors.bottomMargin: 4
-            clip: true
-
-            Rectangle {
-                anchors.horizontalCenter: parent.horizontalCenter
-                y: -bar.notchRadius
-                width: parent.width
-                height: parent.height + bar.notchRadius
-                radius: bar.notchRadius
-                antialiasing: true
-
-                gradient: Gradient {
-                    GradientStop { position: 0; color: notchRoot.hovered ? Qt.rgba(0, 0, 0, 0.20) : Qt.rgba(0, 0, 0, 0.15) }
-                    GradientStop { position: 1.0; color: notchRoot.hovered ? bar.notchHoverColor : bar.notchColor }
-                }
-            }
-        }
-
-        Rectangle {
-            id: tooltipBg
-            visible: notchRoot.hovered && notchRoot.tooltip !== ""
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.bottom
-            anchors.topMargin: 4
-            width: tooltipText.implicitWidth + 16
-            height: tooltipText.implicitHeight + 8
-            radius: 6
-            color: Qt.rgba(0, 0, 0, 0.85)
-            opacity: visible ? 1 : 0
-            z: 1000
-
-            Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
-
-            Text {
-                id: tooltipText
-                anchors.centerIn: parent
-                text: notchRoot.tooltip
-                color: root.walForeground
-                font.pixelSize: 11
-                font.family: "JetBrainsMono Nerd Font"
-            }
-        }
-
-        Item {
-            id: contentItem
-            anchors.fill: parent
-            anchors.bottomMargin: 4
         }
     }
 
@@ -473,6 +522,7 @@ PanelWindow {
 
         Row {
             id: leftSection
+
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.leftMargin: 8
@@ -492,6 +542,9 @@ PanelWindow {
                         text: "󰣇"
                         color: root.walColor2
                         layer.enabled: true
+                        font.pixelSize: 16
+                        font.family: "JetBrainsMono Nerd Font"
+
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -500,56 +553,64 @@ PanelWindow {
                             spread: 0.2
                             color: Qt.rgba(0, 0, 0, 0.4)
                             transparentBorder: true
-                            }
-                        font.pixelSize: 16
-                        font.family: "JetBrainsMono Nerd Font"
+                        }
+
                     }
+
                 }
 
                 MouseArea {
                     id: appsMA
+
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onClicked: function(mouse) {
                         if (mouse.button === Qt.RightButton) {
-                            root.activeTab = 1
-                            if (!root.launcherVisible) root.toggleLauncher()
-                            else { root.activeTab = 1; if (!root.wallsLoaded) root.loadWallpapers() }
+                            root.activeTab = 1;
+                            if (!root.launcherVisible) {
+                                root.toggleLauncher();
+                            } else {
+                                root.activeTab = 1;
+                                if (!root.wallsLoaded)
+                                    root.loadWallpapers();
+
+                            }
                         } else {
-                            root.activeTab = 0
-                            root.toggleLauncher()
+                            root.activeTab = 0;
+                            root.toggleLauncher();
                         }
                     }
                 }
-              }
+
+            }
 
             Notch {
                 id: workspacesNotch
-                width: wsContainer.width + 20
 
-                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                width: wsContainer.width + 20
 
                 Item {
                     anchors.fill: parent
 
                     Item {
                         id: wsContainer
+
                         anchors.centerIn: parent
                         width: wsRow.width
                         height: 38
 
                         Rectangle {
                             id: wsHighlight
-                            height: 26
-                            radius: 3
 
                             property real targetX: 0
                             property real targetWidth: 26
                             property real highlightOpacity: 0.7
                             property real highlightScale: 1
 
+                            height: 26
+                            radius: 3
                             x: targetX
                             width: targetWidth
                             opacity: highlightOpacity
@@ -563,6 +624,7 @@ PanelWindow {
                                     duration: 300
                                     easing.type: Easing.OutCubic
                                 }
+
                             }
 
                             Behavior on width {
@@ -570,37 +632,53 @@ PanelWindow {
                                     duration: 250
                                     easing.type: Easing.OutCubic
                                 }
+
                             }
+
                         }
 
                         Row {
                             id: wsRow
+
                             anchors.centerIn: parent
                             spacing: 4
 
                             Repeater {
                                 id: wsRepeater
+
                                 model: Hyprland.workspaces
 
                                 delegate: Item {
                                     id: wsDelegate
+
                                     required property var modelData
                                     property bool isActive: bar.activeWsId === modelData.id
                                     property bool isHovered: wsMA.containsMouse
 
+                                    function updateHighlight() {
+                                        if (isActive) {
+                                            wsHighlight.targetX = x;
+                                            wsHighlight.targetWidth = width;
+                                        }
+                                    }
+
                                     visible: modelData.id > 0
                                     implicitWidth: Math.max(wsText.implicitWidth + 14, 24)
                                     implicitHeight: 18
-
                                     onIsActiveChanged: updateHighlight()
-                                    onXChanged: if (isActive) updateHighlight()
-                                    onWidthChanged: if (isActive) updateHighlight()
-                                    Component.onCompleted: if (isActive) updateHighlight()
-
-                                    function updateHighlight() {
+                                    onXChanged: {
                                         if (isActive) {
-                                            wsHighlight.targetX = x
-                                            wsHighlight.targetWidth = width
+                                            updateHighlight();
+                                        }
+                                    }
+                                    onWidthChanged: {
+                                        if (isActive) {
+                                            updateHighlight();
+                                        }
+                                    }
+                                    Component.onCompleted: {
+                                        if (isActive) {
+                                            updateHighlight();
                                         }
                                     }
 
@@ -609,11 +687,20 @@ PanelWindow {
                                         radius: 4
                                         color: isHovered && !isActive ? Qt.rgba(root.walColor13.r, root.walColor13.g, root.walColor13.b, 0.3) : "transparent"
                                         antialiasing: true
-                                        Behavior on color { ColorAnimation { duration: 200; easing.type: Easing.OutCubic } }
+
+                                        Behavior on color {
+                                            ColorAnimation {
+                                                duration: 200
+                                                easing.type: Easing.OutCubic
+                                            }
+
+                                        }
+
                                     }
 
                                     Text {
                                         id: wsText
+
                                         anchors.centerIn: parent
                                         anchors.verticalCenterOffset: -1
                                         text: modelData.name || modelData.id.toString()
@@ -622,48 +709,77 @@ PanelWindow {
                                         font.bold: true
                                         font.family: "JetBrainsMono Nerd Font"
 
-                                        Behavior on color { ColorAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                                        Behavior on color {
+                                            ColorAnimation {
+                                                duration: 200
+                                                easing.type: Easing.OutCubic
+                                            }
+
+                                        }
+
                                     }
 
                                     MouseArea {
                                         id: wsMA
+
                                         anchors.fill: parent
                                         hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
                                         onClicked: Hyprland.dispatch(`hl.dsp.focus({ workspace = "${modelData.id}" })`)
                                     }
+
                                 }
+
                             }
+
                         }
 
                         Connections {
-                            target: bar
                             function onActiveWsIdChanged() {
                                 for (var i = 0; i < wsRepeater.count; i++) {
-                                    var item = wsRepeater.itemAt(i)
+                                    var item = wsRepeater.itemAt(i);
                                     if (item && item.isActive) {
-                                        item.updateHighlight()
-                                        break
+                                        item.updateHighlight();
+                                        break;
                                     }
                                 }
                             }
+
+                            target: bar
                         }
+
                     }
+
                 }
-              }
+
+                Behavior on width {
+                    NumberAnimation {
+                        duration: 300
+                        easing.type: Easing.OutCubic
+                    }
+
+                }
+
+            }
 
             Notch {
-              width: panelWindow.implicitWidth + 24
-              hovered: windowMA.containsMouse
+                width: panelWindow.implicitWidth + 24
+                hovered: windowMA.containsMouse
 
-              Item {
-                  anchors.fill: parent
-                   Text {
-                       id: panelWindow
-                       anchors.centerIn: parent
-                       text: Hyprland.activeToplevel ? Hyprland.activeToplevel.wayland.appId: "Desktop"
-                       color: root.walColor5
+                Item {
+                    anchors.fill: parent
+
+                    Text {
+                        id: panelWindow
+
+                        anchors.centerIn: parent
+                        text: Hyprland.activeToplevel ? Hyprland.activeToplevel.wayland.appId : "Desktop"
+                        color: root.walColor5
                         layer.enabled: true
+                        font.pixelSize: 11
+                        font.bold: true
+                        font.family: "JetBrainsMono Nerd Font"
+
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -673,20 +789,28 @@ PanelWindow {
                             color: Qt.rgba(0, 0, 0, 0.4)
                             transparentBorder: true
                         }
-                       font.pixelSize: 11
-                       font.bold: true
-                       font.family: "JetBrainsMono Nerd Font"
-                   }
-               }
 
-               Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                    }
 
-               MouseArea {
-                   id: windowMA
-                   anchors.fill: parent
-                   hoverEnabled: true
-               }
+                }
+
+                MouseArea {
+                    id: windowMA
+
+                    anchors.fill: parent
+                    hoverEnabled: true
+                }
+
+                Behavior on width {
+                    NumberAnimation {
+                        duration: 300
+                        easing.type: Easing.OutCubic
+                    }
+
+                }
+
             }
+
         }
 
         Notch {
@@ -697,13 +821,12 @@ PanelWindow {
             hovered: mediaMA.containsMouse
             tooltip: bar.mediaText
 
-            Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
-
             Item {
                 anchors.fill: parent
 
                 Column {
                     id: mediaContent
+
                     anchors.centerIn: parent
                     spacing: 2
 
@@ -718,6 +841,7 @@ PanelWindow {
 
                             Row {
                                 id: cavaRow
+
                                 anchors.centerIn: parent
                                 spacing: 2
 
@@ -732,23 +856,34 @@ PanelWindow {
                                         color: root.walColor5
                                         antialiasing: true
 
-                                        Behavior on height { NumberAnimation { duration: 60; easing.type: Easing.OutQuad } }
+                                        Behavior on height {
+                                            NumberAnimation {
+                                                duration: 60
+                                                easing.type: Easing.OutQuad
+                                            }
+
+                                        }
+
                                     }
+
                                 }
+
                             }
+
                         }
 
                         Text {
                             id: mediaLabel
+
                             anchors.verticalCenter: parent.verticalCenter
                             text: bar.mediaText
                             color: root.walColor2
                             font.pixelSize: 10
                             font.bold: true
                             font.family: "JetBrainsMono Nerd Font"
-                            opacity: bar.mediaClass === "playing" ? 1.0 : 0.7
-
+                            opacity: bar.mediaClass === "playing" ? 1 : 0.7
                             layer.enabled: true
+
                             layer.effect: DropShadow {
                                 horizontalOffset: 0
                                 verticalOffset: 1
@@ -758,8 +893,17 @@ PanelWindow {
                                 color: Qt.rgba(0, 0, 0, 0.4)
                                 transparentBorder: true
                             }
-                            Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+
+                            Behavior on opacity {
+                                NumberAnimation {
+                                    duration: 300
+                                    easing.type: Easing.OutCubic
+                                }
+
+                            }
+
                         }
+
                     }
 
                     Rectangle {
@@ -774,8 +918,8 @@ PanelWindow {
                             height: parent.height
                             radius: 1.5
                             color: root.walColor2
-
                             layer.enabled: true
+
                             layer.effect: Glow {
                                 radius: 3
                                 samples: 7
@@ -783,39 +927,68 @@ PanelWindow {
                                 transparentBorder: true
                             }
 
-                            Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.Linear } }
+                            Behavior on width {
+                                NumberAnimation {
+                                    duration: 200
+                                    easing.type: Easing.Linear
+                                }
+
+                            }
+
                         }
+
                     }
+
                 }
+
             }
 
             MouseArea {
                 id: mediaMA
+
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                 onClicked: function(mouse) {
-                    if (mouse.button === Qt.RightButton)
-                        root.toggleSynth()
-                    else if (mouse.button === Qt.MiddleButton) {
-                        if (!mediaNextProc.running) mediaNextProc.running = true
+                    if (mouse.button === Qt.RightButton) {
+                        root.toggleSynth();
+                    } else if (mouse.button === Qt.MiddleButton) {
+                        if (!mediaNextProc.running)
+                            mediaNextProc.running = true;
+
                     } else {
-                      if (!mediaPlayPauseProc.running) mediaPlayPauseProc.running = true
+                        if (!mediaPlayPauseProc.running)
+                            mediaPlayPauseProc.running = true;
+
                     }
                 }
                 onWheel: function(wheel) {
                     if (wheel.angleDelta.y > 0) {
-                        if (!mediaNextProc.running) mediaNextProc.running = true
+                        if (!mediaNextProc.running)
+                            mediaNextProc.running = true;
+
                     } else {
-                        if (!mediaPrevProc.running) mediaPrevProc.running = true
+                        if (!mediaPrevProc.running)
+                            mediaPrevProc.running = true;
+
                     }
                 }
             }
+
+            Behavior on width {
+                NumberAnimation {
+                    duration: 350
+                    easing.type: Easing.OutCubic
+                }
+
+            }
+
         }
 
         Row {
             id: rightSection
+
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.rightMargin: 8
@@ -826,10 +999,14 @@ PanelWindow {
                 width: batteryRow.width + 24
                 hovered: batteryMA.containsMouse
                 tooltip: {
-                    var t = bar.batteryPercent + "%"
-                    if (bar.batteryCharging) t += " (Charging)"
-                    if (bar.batteryTime) t += " - " + bar.batteryTime
-                    return t
+                    var t = bar.batteryPercent + "%";
+                    if (bar.batteryCharging)
+                        t += " (Charging)";
+
+                    if (bar.batteryTime)
+                        t += " - " + bar.batteryTime;
+
+                    return t;
                 }
 
                 Item {
@@ -837,6 +1014,7 @@ PanelWindow {
 
                     Row {
                         id: batteryRow
+
                         anchors.centerIn: parent
                         spacing: 8
 
@@ -847,6 +1025,7 @@ PanelWindow {
 
                             Rectangle {
                                 id: batteryBody
+
                                 anchors.left: parent.left
                                 anchors.verticalCenter: parent.verticalCenter
                                 width: 16
@@ -854,58 +1033,92 @@ PanelWindow {
                                 radius: 3
                                 color: "transparent"
                                 layer.enabled: true
-                                layer.effect: DropShadow {
-                                  horizontalOffset: 0
-                                  verticalOffset: 1
-                                  radius: 4
-                                  samples: 9
-                                  spread: 0.2
-                                  color: Qt.rgba(0, 0, 0, 0.2)
-                                  transparentBorder: true
-                                  }
                                 border.width: bar.batteryPercent >= 100 ? 0 : 1.5
                                 border.color: {
-                                    if (bar.batteryClass === "charging") return root.walColor2
-                                    if (bar.batteryClass === "critical") return root.walColor1
-                                    if (bar.batteryClass === "warning") return root.walColor4
-                                    return root.walColor13
+                                    if (bar.batteryClass === "charging")
+                                        return root.walColor2;
+
+                                    if (bar.batteryClass === "critical")
+                                        return root.walColor1;
+
+                                    if (bar.batteryClass === "warning")
+                                        return root.walColor4;
+
+                                    return root.walColor13;
                                 }
                                 antialiasing: true
-                                Behavior on border.color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                                 Rectangle {
                                     id: batteryFill
+
                                     anchors.left: parent.left
                                     anchors.leftMargin: bar.batteryPercent >= 100 ? 0 : 1
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: {
-                                        if (bar.batteryPercent >= 100) return parent.width
-                                        var base = Math.max(0, (parent.width - 5) * bar.batteryPercent / 100)
+                                        if (bar.batteryPercent >= 100)
+                                            return parent.width;
+
+                                        var base = Math.max(0, (parent.width - 5) * bar.batteryPercent / 100);
                                         if (bar.batteryCharging) {
-                                            var extra = (parent.width - 5 - base) * bar.chargingFillAnim * 0.3
-                                            return base + extra
+                                            var extra = (parent.width - 5 - base) * bar.chargingFillAnim * 0.3;
+                                            return base + extra;
                                         }
-                                        return base
+                                        return base;
                                     }
                                     height: bar.batteryPercent >= 100 ? parent.height : parent.height - 1
                                     radius: bar.batteryPercent >= 100 ? 3 : 1.5
                                     color: {
-                                        if (bar.batteryClass === "charging") return root.walColor2
-                                        if (bar.batteryClass === "critical") return root.walColor1
-                                        if (bar.batteryClass === "warning") return root.walColor4
-                                        return root.walColor13
-                                      }
+                                        if (bar.batteryClass === "charging")
+                                            return root.walColor2;
+
+                                        if (bar.batteryClass === "critical")
+                                            return root.walColor1;
+
+                                        if (bar.batteryClass === "warning")
+                                            return root.walColor4;
+
+                                        return root.walColor13;
+                                    }
                                     antialiasing: true
 
                                     Behavior on width {
-                                      enabled: !bar.batteryCharging
-                                      NumberAnimation {
-                                        duration: bar.batteryCharging ? 50 : 600; easing.type: Easing.OutCubic 
-                                      }
+                                        enabled: !bar.batteryCharging
+
+                                        NumberAnimation {
+                                            duration: bar.batteryCharging ? 50 : 600
+                                            easing.type: Easing.OutCubic
+                                        }
+
                                     }
 
-                                    Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
+                                    Behavior on color {
+                                        ColorAnimation {
+                                            duration: 400
+                                            easing.type: Easing.OutCubic
+                                        }
+
+                                    }
+
                                 }
+
+                                layer.effect: DropShadow {
+                                    horizontalOffset: 0
+                                    verticalOffset: 1
+                                    radius: 4
+                                    samples: 9
+                                    spread: 0.2
+                                    color: Qt.rgba(0, 0, 0, 0.2)
+                                    transparentBorder: true
+                                }
+
+                                Behavior on border.color {
+                                    ColorAnimation {
+                                        duration: 400
+                                        easing.type: Easing.OutCubic
+                                    }
+
+                                }
+
                             }
 
                             Rectangle {
@@ -919,7 +1132,14 @@ PanelWindow {
                                 visible: bar.batteryPercent < 100
                                 antialiasing: true
 
-                                Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 400
+                                        easing.type: Easing.OutCubic
+                                    }
+
+                                }
+
                             }
 
                             Text {
@@ -940,6 +1160,7 @@ PanelWindow {
                                 font.family: "JetBrainsMono Nerd Font"
                                 visible: bar.batteryPercent >= 100
                             }
+
                         }
 
                         Text {
@@ -950,25 +1171,38 @@ PanelWindow {
                             font.bold: true
                             font.family: "JetBrainsMono Nerd Font"
                             layer.enabled: true
+
                             layer.effect: DropShadow {
-                              horizontalOffset: 0
-                              verticalOffset: 1
-                              radius: 4
-                              samples: 9
-                              spread: 0.2
-                              color: Qt.rgba(0, 0, 0, 0.4)
-                              transparentBorder: true
-                             }
-                            Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
+                                horizontalOffset: 0
+                                verticalOffset: 1
+                                radius: 4
+                                samples: 9
+                                spread: 0.2
+                                color: Qt.rgba(0, 0, 0, 0.4)
+                                transparentBorder: true
+                            }
+
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 400
+                                    easing.type: Easing.OutCubic
+                                }
+
+                            }
+
                         }
+
                     }
+
                 }
 
                 MouseArea {
                     id: batteryMA
+
                     anchors.fill: parent
                     hoverEnabled: true
                 }
+
             }
 
             Notch {
@@ -981,6 +1215,7 @@ PanelWindow {
 
                     Text {
                         id: volumeLabel
+
                         anchors.centerIn: parent
                         text: bar.volumeStr
                         color: bar.volumeMuted ? root.walColor2 : root.walColor5
@@ -988,6 +1223,7 @@ PanelWindow {
                         font.bold: true
                         font.family: "JetBrainsMono Nerd Font"
                         layer.enabled: true
+
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -996,38 +1232,58 @@ PanelWindow {
                             spread: 0.2
                             color: Qt.rgba(0, 0, 0, 0.4)
                             transparentBorder: true
+                        }
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: 200
+                                easing.type: Easing.OutCubic
                             }
-                        Behavior on color { ColorAnimation { duration: 200; easing.type: Easing.OutCubic } }
+
+                        }
+
                     }
+
                 }
 
                 MouseArea {
                     id: volumeMA
+
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: { if (!volumeToggleProc.running) volumeToggleProc.running = true }
+                    onClicked: {
+                        if (!volumeToggleProc.running)
+                            volumeToggleProc.running = true;
+
+                    }
                     onWheel: function(wheel) {
-                        var delta = wheel.angleDelta.y > 0 ? 5 : -5
-                        bar.adjustVolume(delta)
+                        var delta = wheel.angleDelta.y > 0 ? 5 : -5;
+                        bar.adjustVolume(delta);
                     }
                 }
+
             }
 
             Notch {
                 width: backlightLabel.implicitWidth + 24
                 hovered: backlightMA.containsMouse
                 tooltip: "Brightness: " + bar.backlightPercent + "%"
- 
+
                 Item {
                     anchors.fill: parent
- 
+
                     Text {
                         id: backlightLabel
+
                         anchors.centerIn: parent
                         text: bar.backlightStr
                         color: root.walColor5
                         layer.enabled: true
+                        font.pixelSize: 11
+                        font.bold: true
+                        font.family: "JetBrainsMono Nerd Font"
+
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -1037,94 +1293,117 @@ PanelWindow {
                             color: Qt.rgba(0, 0, 0, 0.4)
                             transparentBorder: true
                         }
-                        font.pixelSize: 11
-                        font.bold: true
-                        font.family: "JetBrainsMono Nerd Font"
+
                     }
+
                 }
- 
+
                 MouseArea {
                     id: backlightMA
+
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onWheel: function(wheel) {
-                        var delta = wheel.angleDelta.y > 0 ? 5 : -5
-                        bar.adjustBacklight(delta)
+                        var delta = wheel.angleDelta.y > 0 ? 5 : -5;
+                        bar.adjustBacklight(delta);
                     }
                 }
+
             }
 
             Notch {
                 width: networkRow.width + 24
                 hovered: networkMA.containsMouse
                 tooltip: {
-                    var t = ""
-                    if (bar.wifiConnected) t += bar.wifiSSID + " (" + bar.wifiStrength + "%)"
-                    else t += "Not connected"
-                    t += "\nBluetooth: " + (bar.btConnected ? "Connected" : "Off")
-                    return t
+                    var t = "";
+                    if (bar.wifiConnected)
+                        t += bar.wifiSSID + " (" + bar.wifiStrength + "%)";
+                    else
+                        t += "Not connected";
+                    t += "\nBluetooth: " + (bar.btConnected ? "Connected" : "Off");
+                    return t;
                 }
 
                 Item {
                     anchors.fill: parent
 
                     Row {
+                        //                        Text {
+                        //                            anchors.verticalCenter: parent.verticalCenter
+                        //                            text: bar.btConnected ? "󰂱" : "󰂲"
+                        //                            color: bar.btConnected ? root.walColor5 : root.walColor8
+                        //                            font.pixelSize: 13
+                        //                            font.family: "JetBrainsMono Nerd Font"
+                        //                            Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                        //                        }
+
                         id: networkRow
+
                         anchors.centerIn: parent
                         spacing: 8
 
                         Text {
-                          anchors.verticalCenter: parent.verticalCenter
-                          layer.enabled: true
-                          layer.effect: DropShadow {
-                              horizontalOffset: 0
-                              verticalOffset: 1
-                              radius: 4
-                              samples: 9
-                              spread: 0.2
-                              color: Qt.rgba(0, 0, 0, 0.4)
-                              transparentBorder: true
-                            }
+                            anchors.verticalCenter: parent.verticalCenter
+                            layer.enabled: true
                             text: {
-                                if (!bar.wifiConnected) return "󰤭"
-                                if (bar.wifiStrength > 75) return "󰤨"
-                                if (bar.wifiStrength > 50) return "󰤥"
-                                if (bar.wifiStrength > 25) return "󰤢"
-                                return "󰤟"
+                                if (!bar.wifiConnected)
+                                    return "󰤭";
+
+                                if (bar.wifiStrength > 75)
+                                    return "󰤨";
+
+                                if (bar.wifiStrength > 50)
+                                    return "󰤥";
+
+                                if (bar.wifiStrength > 25)
+                                    return "󰤢";
+
+                                return "󰤟";
                             }
                             color: bar.wifiConnected ? root.walColor5 : root.walColor8
                             font.pixelSize: 14
                             font.family: "JetBrainsMono Nerd Font"
 
-                            Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                            layer.effect: DropShadow {
+                                horizontalOffset: 0
+                                verticalOffset: 1
+                                radius: 4
+                                samples: 9
+                                spread: 0.2
+                                color: Qt.rgba(0, 0, 0, 0.4)
+                                transparentBorder: true
+                            }
+
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 300
+                                    easing.type: Easing.OutCubic
+                                }
+
+                            }
+
                         }
 
-//                        Text {
-//                            anchors.verticalCenter: parent.verticalCenter
-//                            text: bar.btConnected ? "󰂱" : "󰂲"
-//                            color: bar.btConnected ? root.walColor5 : root.walColor8
-//                            font.pixelSize: 13
-//                            font.family: "JetBrainsMono Nerd Font"
-//
-//                            Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic } }
-//                        }
                     }
+
                 }
 
                 MouseArea {
                     id: networkMA
+
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onClicked: function(mouse) {
                         if (mouse.button === Qt.RightButton)
-                            root.toggleBluetooth()
+                            root.toggleBluetooth();
                         else
-                            root.toggleWifi()
+                            root.toggleWifi();
                     }
                 }
+
             }
 
             Notch {
@@ -1136,9 +1415,14 @@ PanelWindow {
 
                     Text {
                         id: clockLabel
+
                         anchors.centerIn: parent
                         color: root.walColor5
                         layer.enabled: true
+                        font.pixelSize: 11
+                        font.bold: true
+                        font.family: "JetBrainsMono Nerd Font"
+
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -1148,14 +1432,14 @@ PanelWindow {
                             color: Qt.rgba(0, 0, 0, 0.4)
                             transparentBorder: true
                         }
-                        font.pixelSize: 11
-                        font.bold: true
-                        font.family: "JetBrainsMono Nerd Font"
+
                     }
+
                 }
 
                 MouseArea {
                     id: clockMA
+
                     anchors.fill: parent
                     hoverEnabled: true
                 }
@@ -1167,6 +1451,7 @@ PanelWindow {
                     triggeredOnStart: true
                     onTriggered: clockLabel.text = Qt.formatDateTime(new Date(), "HH:mm")
                 }
+
             }
 
             Notch {
@@ -1178,9 +1463,15 @@ PanelWindow {
 
                     Text {
                         id: dateLabel
+
                         anchors.centerIn: parent
                         color: root.walColor5
                         layer.enabled: true
+                        font.pixelSize: 11
+                        font.bold: true
+                        font.family: "JetBrainsMono Nerd Font"
+                        text: Qt.formatDateTime(new Date(), "dddd, MMMM d, yyyy")
+
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -1190,21 +1481,21 @@ PanelWindow {
                             color: Qt.rgba(0, 0, 0, 0.4)
                             transparentBorder: true
                         }
-                        font.pixelSize: 11
-                        font.bold: true
-                        font.family: "JetBrainsMono Nerd Font"
-                        text: Qt.formatDateTime(new Date(), "dddd, MMMM d, yyyy")
+
                     }
+
                 }
 
                 MouseArea {
                     id: dateMA
+
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.toggleCalendar()
                 }
-              }
+
+            }
 
             Notch {
                 width: 36
@@ -1221,6 +1512,7 @@ PanelWindow {
                         font.pixelSize: 15
                         font.family: "JetBrainsMono Nerd Font"
                         layer.enabled: true
+
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -1230,17 +1522,117 @@ PanelWindow {
                             color: Qt.rgba(0, 0, 0, 0.4)
                             transparentBorder: true
                         }
+
                     }
+
                 }
 
                 MouseArea {
                     id: dashMA
+
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.toggleDashboard()
                 }
+
             }
+
         }
+
     }
+
+    component Notch: Item {
+        id: notchRoot
+
+        property bool hovered: false
+        property string tooltip: ""
+        default property alias content: contentItem.data
+
+        layer.enabled: true
+        height: bar.notchHeight
+
+        Item {
+            anchors.fill: parent
+            anchors.bottomMargin: 4
+            clip: true
+
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: -bar.notchRadius
+                width: parent.width
+                height: parent.height + bar.notchRadius
+                radius: bar.notchRadius
+                antialiasing: true
+
+                gradient: Gradient {
+                    GradientStop {
+                        position: 0
+                        color: notchRoot.hovered ? Qt.rgba(0, 0, 0, 0.2) : Qt.rgba(0, 0, 0, 0.15)
+                    }
+
+                    GradientStop {
+                        position: 1
+                        color: notchRoot.hovered ? bar.notchHoverColor : bar.notchColor
+                    }
+
+                }
+
+            }
+
+        }
+
+        Rectangle {
+            id: tooltipBg
+
+            visible: notchRoot.hovered && notchRoot.tooltip !== ""
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.bottom
+            anchors.topMargin: 4
+            width: tooltipText.implicitWidth + 16
+            height: tooltipText.implicitHeight + 8
+            radius: 6
+            color: Qt.rgba(0, 0, 0, 0.85)
+            opacity: visible ? 1 : 0
+            z: 1000
+
+            Text {
+                id: tooltipText
+
+                anchors.centerIn: parent
+                text: notchRoot.tooltip
+                color: root.walForeground
+                font.pixelSize: 11
+                font.family: "JetBrainsMono Nerd Font"
+            }
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 150
+                    easing.type: Easing.OutCubic
+                }
+
+            }
+
+        }
+
+        Item {
+            id: contentItem
+
+            anchors.fill: parent
+            anchors.bottomMargin: 4
+        }
+
+        layer.effect: DropShadow {
+            horizontalOffset: 1
+            verticalOffset: 1
+            radius: 3
+            samples: 10
+            spread: 0.4
+            color: Qt.rgba(0, 0, 0, 0.25)
+            transparentBorder: true
+        }
+
+    }
+
 }
